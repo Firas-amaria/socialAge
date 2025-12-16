@@ -1,11 +1,18 @@
 const express = require("express");
 const path = require("path");
 const { exec } = require("child_process");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(express.static(path.join(__dirname)));
+
+app.get("/js/env.js", (_req, res) => {
+  const apiBase = process.env.API_BASE_URL || "http://localhost:3001";
+  const payload = `window.__ENV = ${JSON.stringify({ API_BASE_URL: apiBase })};`;
+  res.type("application/javascript").send(payload);
+});
 
 app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "pages", "index.html"));

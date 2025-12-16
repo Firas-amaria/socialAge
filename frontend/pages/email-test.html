@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Upload Demo</title>
   <link rel="stylesheet" href="/css/main.css">
+  <script src="/js/env.js"></script>
+  <script src="/js/api.js"></script>
 </head>
 
 <body>
@@ -16,8 +18,8 @@
       <form id="upload-form" class="form">
         <div class="field">
           <label for="backendUrl">Backend URL</label>
-          <input id="backendUrl" name="backendUrl" type="text" value="http://localhost:3001" required>
-          <span class="help">Use the API origin and port (e.g., backend running on 3001).</span>
+          <input id="backendUrl" name="backendUrl" type="text" value="" placeholder="http://localhost:3001">
+          <span class="help">Uses API_BASE_URL from frontend .env if left empty.</span>
         </div>
         <div class="field">
           <label for="image">Image File</label>
