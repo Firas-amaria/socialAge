@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Upload Demo</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+  <main class="layout">
+    <div class="panel">
+      <h1>Email Upload Demo</h1>
+      <p>Upload an image and send it via the backend <code>/mail/upload</code> endpoint.</p>
+      <form id="upload-form" class="form">
+        <div class="field">
+          <label for="backendUrl">Backend URL</label>
+          <input id="backendUrl" name="backendUrl" type="text" value="http://localhost:3001" required>
+          <span class="help">Use the API origin and port (e.g., backend running on 3001).</span>
+        </div>
+        <div class="field">
+          <label for="image">Image File</label>
+          <input id="image" name="image" type="file" accept="image/*" required>
+        </div>
+        <button type="submit">Send Email</button>
+        <div id="upload-status" class="status"></div>
+        <a class="ghost-btn" href="/pages/index.html">Back to home</a>
+      </form>
+    </div>
+  </main>
+  <script src="../js/email.js"></script>
+</body>
+
+</html>

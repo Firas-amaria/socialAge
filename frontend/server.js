@@ -3,7 +3,7 @@ const path = require("path");
 const { exec } = require("child_process");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 app.use(express.static(path.join(__dirname)));
 
@@ -18,9 +18,10 @@ app.listen(PORT, () => {
 });
 
 function openBrowser(url) {
-  const command = process.platform === "darwin"
-    ? `open "${url}"`
-    : process.platform === "win32"
+  const command =
+    process.platform === "darwin"
+      ? `open "${url}"`
+      : process.platform === "win32"
       ? `start "" "${url}"`
       : `xdg-open "${url}"`;
 
