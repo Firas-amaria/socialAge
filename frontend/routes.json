@@ -1,0 +1,7 @@
+{
+  "/": "pages/index.html",
+  "/manager-application": "pages/manager-application.html",
+  "/manager-dashboard": "pages/manager-dashboard.html",
+  "/manager-gatherings": "pages/manager-gatherings.html",
+  "/manager-create-gathering": "pages/manager-create-gathering.html"
+}

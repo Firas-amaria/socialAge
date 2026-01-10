@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Manager Dashboard</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <main class="page">
+    <section class="card" aria-labelledby="page-title">
+      <header class="card-header">
+        <p class="eyebrow">Social Manager Demo</p>
+        <h1 id="page-title">Manager Dashboard</h1>
+        <p class="subtitle">Review the current state of your Social Manager application.</p>
+      </header>
+
+      <div id="dashboardContent" class="dashboard-content" aria-live="polite"></div>
+
+      <section class="dev-controls" aria-label="Developer controls">
+        <h2 class="section-title">Dev Controls (Demo Only)</h2>
+        <p class="help">These buttons help simulate admin review outcomes for the demo flow.</p>
+        <div class="button-grid">
+          <button type="button" class="secondary-btn" id="approveButton">Approve Application</button>
+          <button type="button" class="danger-btn" id="rejectButton">Reject Application</button>
+          <button type="button" class="ghost-btn" id="clearButton">Clear Application</button>
+        </div>
+      </section>
+
+      <a class="back-link" href="/">Back to Home</a>
+    </section>
+  </main>
+
+  <script src="../js/manager-dashboard.js"></script>
+</body>
+
+</html>

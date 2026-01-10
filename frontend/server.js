@@ -21,8 +21,13 @@ app.get("/js/env.js", (_req, res) => {
   res.type("application/javascript").send(payload);
 });
 
-app.get("/", (_req, res) => {
-  res.sendFile(path.join(__dirname, "pages", "index.html"));
+const routesPath = path.join(__dirname, "routes.json");
+const routes = loadRoutes(routesPath);
+
+Object.entries(routes).forEach(([route, pagePath]) => {
+  app.get(route, (_req, res) => {
+    res.sendFile(path.join(__dirname, pagePath));
+  });
 });
 
 app.listen(PORT, () => {
@@ -61,4 +66,18 @@ function seedFakeData() {
     };
     fs.writeFileSync(seedPath, JSON.stringify(seed, null, 2));
   }
+}
+
+function loadRoutes(filePath) {
+  try {
+    const raw = fs.readFileSync(filePath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      return parsed;
+    }
+  } catch (err) {
+    console.warn("Could not load routes.json. Falling back to / only.");
+  }
+
+  return { "/": "pages/index.html" };
 }
