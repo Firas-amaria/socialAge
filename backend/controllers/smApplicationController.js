@@ -1,21 +1,98 @@
+const nodemailer = require("nodemailer");
 const SMApplication = require("../models/SMApplication");
 
-const ALLOWED_STATUSES = ["approved", "denied"];
+const ALLOWED_STATUSES = ["pending", "approved", "denied"];
+
+const SMTP_PORT = Number(process.env.SMTP_PORT) || 587;
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: SMTP_PORT,
+  secure: SMTP_PORT === 465,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 const createApplication = async (req, res) => {
   try {
-    const userId = req.user?.id || req.body.userId;
-    const { status, realIdNumber, fullName, references = "" } = req.body;
+    const userId = req.user?.id || req.body.userId || null;
+    const { governmentIdNumber, fullName, references = "" } = req.body;
 
-    if (!userId || !status || !realIdNumber || !fullName) {
-      return res.status(400).json({ message: "userId, status, realIdNumber, and fullName are required" });
+    const employmentProof = req.files?.employmentProof?.[0];
+    const governmentIdImage = req.files?.governmentIdImage?.[0];
+    const additionalDocuments = req.files?.additionalDocuments || [];
+
+    if (!governmentIdNumber || !fullName) {
+      return res.status(400).json({ message: "governmentIdNumber and fullName are required" });
     }
 
-    if (!ALLOWED_STATUSES.includes(status)) {
-      return res.status(400).json({ message: `Status must be one of: ${ALLOWED_STATUSES.join(", ")}` });
+    if (!employmentProof) {
+      return res.status(400).json({ message: "employmentProof file is required" });
     }
 
-    const application = await SMApplication.create({ userId, status, realIdNumber, fullName, references });
+    if (!governmentIdImage) {
+      return res.status(400).json({ message: "governmentIdImage file is required" });
+    }
+
+    const to = process.env.MAIL_TO;
+    const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+    if (!to || !from) {
+      return res.status(400).json({ message: "Missing recipient or sender email (configure MAIL_TO and MAIL_FROM)" });
+    }
+
+    const applicationPayload = {
+      userId,
+      status: "pending",
+      governmentIdNumber,
+      fullName,
+      references,
+      employmentProof: {
+        filename: employmentProof.originalname,
+        mimetype: employmentProof.mimetype,
+        size: employmentProof.size,
+      },
+      governmentIdImage: {
+        filename: governmentIdImage.originalname,
+        mimetype: governmentIdImage.mimetype,
+        size: governmentIdImage.size,
+      },
+      additionalDocuments: additionalDocuments.map((file) => ({
+        filename: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+      })),
+    };
+
+    const attachments = [employmentProof, governmentIdImage, ...additionalDocuments].map((file) => ({
+      filename: file.originalname,
+      content: file.buffer,
+      contentType: file.mimetype,
+    }));
+
+    const text = [
+      "New Social Manager application submitted.",
+      "",
+      `Full Name: ${fullName}`,
+      `Government ID Number: ${governmentIdNumber}`,
+      `References: ${references || "None provided"}`,
+      `User Id: ${userId || "N/A"}`,
+      "",
+      "Files:",
+      `- Employment Proof: ${employmentProof.originalname}`,
+      `- Government ID Image: ${governmentIdImage.originalname}`,
+      ...additionalDocuments.map((file, index) => `- Additional Document ${index + 1}: ${file.originalname}`),
+    ].join("\n");
+
+    await transporter.sendMail({
+      from,
+      to,
+      subject: "New Social Manager Application",
+      text,
+      attachments,
+    });
+
+    const application = await SMApplication.create(applicationPayload);
     res.status(201).json(application);
   } catch (error) {
     res.status(500).json({ message: error.message });

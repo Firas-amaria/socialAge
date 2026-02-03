@@ -37,15 +37,29 @@
         </div>
 
         <div class="field">
-          <label for="idImage">Government ID Image</label>
-          <input id="idImage" name="idImage" type="file" accept="image/*" required>
+          <label for="employmentProof">Proof of Employment</label>
+          <input id="employmentProof" name="employmentProof" type="file" accept="image/*,.pdf,.doc,.docx" required>
+          <p class="help">Upload a document or image showing proof of employment.</p>
+          <p class="error" id="employmentProofError" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label for="governmentIdImage">Government ID Image</label>
+          <input id="governmentIdImage" name="governmentIdImage" type="file" accept="image/*" required>
           <p class="help">Upload a clear, readable photo of your ID.</p>
-          <p class="error" id="idImageError" aria-live="polite"></p>
+          <p class="error" id="governmentIdImageError" aria-live="polite"></p>
         </div>
 
         <div class="preview" id="imagePreviewWrapper" hidden>
           <p class="preview-title">Image Preview</p>
           <img id="imagePreview" alt="Selected ID preview">
+        </div>
+
+        <div class="field">
+          <label for="additionalDocuments">Additional Documents (Optional)</label>
+          <input id="additionalDocuments" name="additionalDocuments" type="file" accept="image/*,.pdf,.doc,.docx" multiple>
+          <p class="help">Attach any supporting documents (optional).</p>
+          <p class="error" id="additionalDocumentsError" aria-live="polite"></p>
         </div>
 
         <button type="submit" class="primary-btn">Submit Application</button>
@@ -56,6 +70,7 @@
     </section>
   </main>
 
+  <script src="/js/env.js"></script>
   <script src="../js/manager-application.js"></script>
 </body>
 

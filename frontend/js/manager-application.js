@@ -2,18 +2,28 @@ const form = document.getElementById("applicationForm");
 const fullLegalName = document.getElementById("fullLegalName");
 const governmentIdNumber = document.getElementById("governmentIdNumber");
 const referenceText = document.getElementById("referenceText");
-const idImage = document.getElementById("idImage");
+const employmentProof = document.getElementById("employmentProof");
+const governmentIdImage = document.getElementById("governmentIdImage");
+const additionalDocuments = document.getElementById("additionalDocuments");
 const formSuccess = document.getElementById("formSuccess");
 
 const errors = {
   fullLegalName: document.getElementById("fullLegalNameError"),
   governmentIdNumber: document.getElementById("governmentIdNumberError"),
   referenceText: document.getElementById("referenceTextError"),
-  idImage: document.getElementById("idImageError"),
+  employmentProof: document.getElementById("employmentProofError"),
+  governmentIdImage: document.getElementById("governmentIdImageError"),
+  additionalDocuments: document.getElementById("additionalDocumentsError"),
 };
 
 const previewWrapper = document.getElementById("imagePreviewWrapper");
 const previewImage = document.getElementById("imagePreview");
+const isAllowedDoc = (file) =>
+  file &&
+  (file.type.startsWith("image/") ||
+    file.type === "application/pdf" ||
+    file.type === "application/msword" ||
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
 const setError = (field, message) => {
   errors[field].textContent = message;
@@ -27,7 +37,9 @@ const clearErrors = () => {
   setError("fullLegalName", "");
   setError("governmentIdNumber", "");
   setError("referenceText", "");
-  setError("idImage", "");
+  setError("employmentProof", "");
+  setError("governmentIdImage", "");
+  setError("additionalDocuments", "");
 };
 
 const validateForm = () => {
@@ -49,12 +61,28 @@ const validateForm = () => {
     isValid = false;
   }
 
-  const file = idImage.files[0];
-  if (!file) {
-    setError("idImage", "Please upload your government ID image.");
+  const proofFile = employmentProof.files[0];
+  if (!proofFile) {
+    setError("employmentProof", "Please upload proof of employment.");
     isValid = false;
-  } else if (!file.type.startsWith("image/")) {
-    setError("idImage", "File must be an image.");
+  } else if (!isAllowedDoc(proofFile)) {
+    setError("employmentProof", "File must be an image, PDF, or Word document.");
+    isValid = false;
+  }
+
+  const idFile = governmentIdImage.files[0];
+  if (!idFile) {
+    setError("governmentIdImage", "Please upload your government ID image.");
+    isValid = false;
+  } else if (!idFile.type.startsWith("image/")) {
+    setError("governmentIdImage", "File must be an image.");
+    isValid = false;
+  }
+
+  const extraFiles = Array.from(additionalDocuments.files || []);
+  const hasInvalid = extraFiles.some((file) => !isAllowedDoc(file));
+  if (hasInvalid) {
+    setError("additionalDocuments", "Additional documents must be images, PDFs, or Word files.");
     isValid = false;
   }
 
@@ -76,13 +104,28 @@ const showPreview = (file) => {
   reader.readAsDataURL(file);
 };
 
-idImage.addEventListener("change", () => {
+employmentProof.addEventListener("change", () => {
   formSuccess.textContent = "";
-  const file = idImage.files[0];
+  const file = employmentProof.files[0];
+  if (file && isAllowedDoc(file)) {
+    setError("employmentProof", "");
+  }
+});
+
+governmentIdImage.addEventListener("change", () => {
+  formSuccess.textContent = "";
+  const file = governmentIdImage.files[0];
   if (file && file.type.startsWith("image/")) {
-    setError("idImage", "");
+    setError("governmentIdImage", "");
   }
   showPreview(file);
+});
+
+additionalDocuments.addEventListener("change", () => {
+  formSuccess.textContent = "";
+  const extraFiles = Array.from(additionalDocuments.files || []);
+  const hasInvalid = extraFiles.some((file) => !isAllowedDoc(file));
+  setError("additionalDocuments", hasInvalid ? "Additional documents must be images, PDFs, or Word files." : "");
 });
 
 form.addEventListener("submit", (event) => {
@@ -93,13 +136,13 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
-  const file = idImage.files[0];
+  const idFile = governmentIdImage.files[0];
   const reader = new FileReader();
 
-  reader.onload = () => {
+  reader.onload = async () => {
     const application = {
       id: `app_${Date.now()}`,
-      userId: "demoUser_1",
+      userId: "public",
       fullLegalName: fullLegalName.value.trim(),
       governmentIdNumber: governmentIdNumber.value.trim(),
       referenceText: referenceText.value.trim(),
@@ -109,13 +152,48 @@ form.addEventListener("submit", (event) => {
       adminNotes: "",
     };
 
-    localStorage.setItem("sm_application", JSON.stringify(application));
-    formSuccess.textContent = "Application submitted. Redirecting...";
+    try {
+      const env = window.__ENV || {};
+      const baseUrl = (env.API_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
 
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 1200);
+      const formData = new FormData();
+      formData.append("fullName", fullLegalName.value.trim());
+      formData.append("governmentIdNumber", governmentIdNumber.value.trim());
+      formData.append("references", referenceText.value.trim());
+      formData.append("employmentProof", employmentProof.files[0]);
+      formData.append("governmentIdImage", governmentIdImage.files[0]);
+
+      const extraFiles = Array.from(additionalDocuments.files || []);
+      extraFiles.forEach((file) => formData.append("additionalDocuments", file));
+
+      const token = window.localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/sm-applications`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        const message = (data && data.message) || response.statusText || "Submission failed.";
+        throw new Error(message);
+      }
+
+      const created = await response.json().catch(() => null);
+      if (created && created.createdAt) {
+        application.submittedAt = created.createdAt;
+      }
+
+      localStorage.setItem("sm_application", JSON.stringify(application));
+      formSuccess.textContent = "Application submitted. Redirecting...";
+
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1200);
+    } catch (error) {
+      formSuccess.textContent = error.message || "Submission failed.";
+    }
   };
 
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(idFile);
 });
