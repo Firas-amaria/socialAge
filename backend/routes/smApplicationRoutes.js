@@ -29,6 +29,7 @@ const upload = multer({
 
 router.post(
   "/",
+  authenticateUser,
   upload.fields([
     { name: "employmentProof", maxCount: 1 },
     { name: "governmentIdImage", maxCount: 1 },

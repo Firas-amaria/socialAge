@@ -6,6 +6,16 @@ const employmentProof = document.getElementById("employmentProof");
 const governmentIdImage = document.getElementById("governmentIdImage");
 const additionalDocuments = document.getElementById("additionalDocuments");
 const formSuccess = document.getElementById("formSuccess");
+const token = window.localStorage.getItem("token");
+
+if (!token) {
+  if (formSuccess) {
+    formSuccess.textContent = "Please log in to submit an application.";
+  }
+  setTimeout(() => {
+    window.location.href = "/login";
+  }, 800);
+}
 
 const errors = {
   fullLegalName: document.getElementById("fullLegalNameError"),
@@ -166,7 +176,6 @@ form.addEventListener("submit", (event) => {
       const extraFiles = Array.from(additionalDocuments.files || []);
       extraFiles.forEach((file) => formData.append("additionalDocuments", file));
 
-      const token = window.localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/sm-applications`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,

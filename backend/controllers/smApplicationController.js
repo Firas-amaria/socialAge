@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const SMApplication = require("../models/SMApplication");
+const User = require("../models/User");
 
 const ALLOWED_STATUSES = ["pending", "approved", "denied"];
 
@@ -16,7 +17,10 @@ const transporter = nodemailer.createTransport({
 
 const createApplication = async (req, res) => {
   try {
-    const userId = req.user?.id || req.body.userId || null;
+    const userId = req.user?.id || null;
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
     const { governmentIdNumber, fullName, references = "" } = req.body;
 
     const employmentProof = req.files?.employmentProof?.[0];
@@ -127,14 +131,14 @@ const updateApplicationStatus = async (req, res) => {
       return res.status(400).json({ message: `Status must be one of: ${ALLOWED_STATUSES.join(", ")}` });
     }
 
-    const updated = await SMApplication.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
+    const updated = await SMApplication.findByIdAndUpdate(req.params.id, { status }, { new: true });
 
     if (!updated) {
       return res.status(404).json({ message: "Application not found" });
+    }
+
+    if (status === "approved" && updated.userId) {
+      await User.findByIdAndUpdate(updated.userId, { role: "SocialM" });
     }
 
     res.json(updated);
