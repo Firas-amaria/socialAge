@@ -5,7 +5,6 @@
   "/manager-gatherings": "pages/manager-gatherings.html",
   "/manager-create-gathering": "pages/manager-create-gathering.html",
   "/elder-dashboard": "pages/elder-dashboard.html",
-  "/elder-browse": "pages/elder-browse.html",
   "/elder-my-gatherings": "pages/elder-my-gatherings.html",
   "/elder-gathering": "pages/elder-gathering.html",
   "/login": "pages/login.html",
