@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elder Gathering Details</title>
+  <link rel="stylesheet" href="../css/elder-style.css">
+</head>
+<body class="elder">
+
+<nav>
+  <a href="/elder-dashboard">Dashboard</a>
+  <a href="/elder-browse">Browse Gatherings</a>
+  <a href="/elder-my-gatherings">My Gatherings</a>
+  <a href="/elder-login">Login</a>
+  <a href="/elder-register">Register</a>
+</nav>
+
+
+<div class="container">
+  <div class="card">
+
+    <div class="image-wrapper">
+      <img id="eventImage" class="event-img" alt="Event image">
+    </div>
+
+    <h2 id="eventTitle"></h2>
+    <p><strong>Date:</strong> <span id="eventDate"></span></p>
+    <p><strong>Time:</strong> <span id="eventTime"></span></p>
+    <p><strong>Location:</strong> <span id="eventLocation"></span></p>
+    <p id="eventDescription"></p>
+
+    <button id="registerBtn" class="btn btn-primary">Register</button>
+
+  </div>
+</div>
+
+<script src="../js/elder-main.js"></script>
+</body>
+</html>

@@ -3,5 +3,12 @@
   "/manager-application": "pages/manager-application.html",
   "/manager-dashboard": "pages/manager-dashboard.html",
   "/manager-gatherings": "pages/manager-gatherings.html",
-  "/manager-create-gathering": "pages/manager-create-gathering.html"
+  "/manager-create-gathering": "pages/manager-create-gathering.html",
+  "/elder-dashboard": "pages/elder-dashboard.html",
+  "/elder-browse": "pages/elder-browse.html",
+  "/elder-my-gatherings": "pages/elder-my-gatherings.html",
+  "/elder-gathering": "pages/elder-gathering.html",
+  "/elder-login": "pages/elder-login.html",
+  "/elder-register": "pages/elder-register.html",
+  "/elder-confirmation": "pages/elder-confirmation.html"
 }

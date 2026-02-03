@@ -13,7 +13,6 @@ Static HTML/CSS/JS served by a lightweight Express server.
 ## Environment
 - `PORT` - frontend server port (default: 3002)
 - `API_BASE_URL` - backend base URL used by the API client
-- `DEMO` - set to `true` to use the in-browser fake API instead of real requests
 - `.env` - optional local overrides loaded from `frontend/.env`
 
 Place new pages under `frontend/pages/` and assets under `frontend/css` and `frontend/js`.
