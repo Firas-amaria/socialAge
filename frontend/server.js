@@ -7,7 +7,15 @@ require("dotenv").config({ path: path.join(__dirname, ".env") });
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-app.use(express.static(path.join(__dirname)));
+app.use(
+  express.static(path.join(__dirname), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".ts")) {
+        res.type("application/javascript");
+      }
+    },
+  }),
+);
 
 app.get("/js/env.js", (_req, res) => {
   const apiBase = process.env.API_BASE_URL || "http://localhost:3001";

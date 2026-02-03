@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elder Register</title>
+  <title>Register</title>
   <link rel="stylesheet" href="../css/elder-style.css">
 </head>
 <body class="elder">
@@ -13,7 +13,7 @@
   <nav>
     <a href="/elder-dashboard">Dashboard</a>
     <a href="/elder-browse">Browse</a>
-    <a href="/elder-login">Login</a>
+    <a href="/login">Login</a>
   </nav>
 </header>
 
@@ -34,12 +34,7 @@
   </form>
 </div>
 
-<script>
-document.getElementById("registerForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-  alert("Registration successful! (demo)");
-  window.location.href = "/elder-dashboard";
-});
-</script>
+<script src="/js/env.js"></script>
+<script src="../js/auth.ts"></script>
 </body>
 </html>
