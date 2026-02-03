@@ -41,6 +41,96 @@ nav a {
   font-weight: bold;
 }
 
+.elder-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.elder-nav .nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.elder-nav .nav-links a {
+  margin-right: 0;
+}
+
+.elder-nav .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.account-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.account-icon {
+  font-size: 16px;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  min-width: 160px;
+  padding: 8px;
+  display: none;
+  z-index: 10;
+}
+
+.account-menu.is-open {
+  display: grid;
+  gap: 6px;
+}
+
+.account-menu a,
+.account-menu button {
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.account-menu a:hover,
+.account-menu button:hover {
+  background: #f2f4f7;
+}
+
+.nav-login {
+  margin-top: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
 .container {
   max-width: 900px;
   margin: 30px auto;

@@ -97,9 +97,8 @@
       try {
         setLoading(registerForm, true);
         const payload = await postJson("/users/register", { name, email, password, role: "Elderly" });
-        saveSession(payload);
-        setMessage(registerForm, "Registration successful. Redirecting...");
-        redirectByRole(payload?.user?.role || "Elderly");
+        setMessage(registerForm, "Registration successful. Redirecting to login...");
+        window.location.href = "/login";
       } catch (err) {
         setMessage(registerForm, err.message || "Registration failed.", true);
       } finally {
