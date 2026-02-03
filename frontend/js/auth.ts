@@ -57,6 +57,18 @@
 
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
+    const existingToken = window.localStorage.getItem("token");
+    const rawUser = window.localStorage.getItem("user");
+    if (existingToken && rawUser) {
+      try {
+        const user = JSON.parse(rawUser);
+        redirectByRole(user?.role);
+        return;
+      } catch (error) {
+        // ignore and continue to login
+      }
+    }
+
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();

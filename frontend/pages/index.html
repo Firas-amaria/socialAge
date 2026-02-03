@@ -4,29 +4,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SocialAge Frontend</title>
+  <title>Welcome</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body>
-  <main class="layout">
-    <div class="panel">
-      <h1>SocialAge Frontend</h1>
-      <p>Blank canvas ready for your UI. Start editing <code>frontend/index.html</code> and
-        <code>frontend/css/style.css</code>.
-      </p>
-      <div class="button-row">
-        <button id="hello-btn">Test Script</button>
-        <a class="ghost-btn" href="/login">Login</a>
-        <a class="ghost-btn" href="/manager-application">Social Manager Application</a>
-        <a class="ghost-btn" href="/manager-dashboard">Social Manager Dashboard</a>
+<body class="home">
+  <main class="home">
+    <div class="home-card">
+      <div class="home-text">
+        <h1>Welcome to our website</h1>
+        <p>Join your community, discover gatherings, and stay connected.</p>
+        <div class="button-row">
+          <a class="btn btn-primary" href="/login">Login</a>
+          <a class="ghost-btn" href="/elder-dashboard">See the Gatherings</a>
+        </div>
       </div>
-      <div id="status" class="status"></div>
+      <div class="home-visual">
+        <div class="hero-rotation">
+          <img src="/images/elder/coffee.jpg" alt="Community coffee gathering">
+          <img src="/images/elder/bookclub.jpg" alt="Book club">
+          <img src="/images/elder/yoga.jpg" alt="Gentle yoga">
+          <img src="/images/elder/art.jpg" alt="Art workshop">
+        </div>
+      </div>
     </div>
   </main>
-
-
-  <script type="module" src="../js/main.js"></script>
 </body>
 
 </html>

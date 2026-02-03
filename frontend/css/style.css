@@ -28,6 +28,10 @@ body.elder {
   background: var(--bg);
 }
 
+body.home {
+  background: var(--bg);
+}
+
 nav {
   background: var(--card);
   padding: 15px;
@@ -211,6 +215,73 @@ nav a {
 .layout {
   width: min(960px, 90vw);
   margin: 0 auto;
+}
+
+.home {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 16px;
+}
+
+.home-card {
+  width: min(1000px, 92vw);
+  background: var(--card);
+  border-radius: 22px;
+  padding: 36px;
+  box-shadow: var(--shadow-strong);
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 28px;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.home-text h1 {
+  margin: 0 0 12px;
+  font-size: 32px;
+}
+
+.home-text p {
+  margin: 0 0 20px;
+  font-size: 16px;
+}
+
+.home-visual {
+  display: grid;
+  place-items: center;
+}
+
+.hero-rotation {
+  position: relative;
+  width: min(320px, 80vw);
+  height: 320px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.hero-rotation img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: heroRotate 16s infinite;
+}
+
+.hero-rotation img:nth-child(1) { animation-delay: 0s; }
+.hero-rotation img:nth-child(2) { animation-delay: 4s; }
+.hero-rotation img:nth-child(3) { animation-delay: 8s; }
+.hero-rotation img:nth-child(4) { animation-delay: 12s; }
+
+@keyframes heroRotate {
+  0% { opacity: 0; transform: scale(1.02); }
+  5% { opacity: 1; transform: scale(1); }
+  25% { opacity: 1; transform: scale(1); }
+  30% { opacity: 0; transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.02); }
 }
 
 .panel {
@@ -651,5 +722,14 @@ button:disabled {
 
   h1 {
     font-size: 26px;
+  }
+
+  .home-card {
+    padding: 24px;
+  }
+
+  .hero-rotation {
+    width: min(260px, 80vw);
+    height: 260px;
   }
 }
