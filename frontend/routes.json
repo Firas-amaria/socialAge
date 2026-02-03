@@ -4,6 +4,7 @@
   "/manager-dashboard": "pages/manager-dashboard.html",
   "/manager-gatherings": "pages/manager-gatherings.html",
   "/manager-create-gathering": "pages/manager-create-gathering.html",
+  "/manager-profile": "pages/manager-profile.html",
   "/elder-dashboard": "pages/elder-dashboard.html",
   "/elder-my-gatherings": "pages/elder-my-gatherings.html",
   "/elder-gathering": "pages/elder-gathering.html",

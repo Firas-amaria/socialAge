@@ -83,14 +83,31 @@
 
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
+    const toggleButtons = registerForm.querySelectorAll("[data-toggle-password]");
+    toggleButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        if (!targetId) return;
+        const input = document.getElementById(targetId);
+        if (!(input instanceof HTMLInputElement)) return;
+        input.type = input.type === "password" ? "text" : "password";
+      });
+    });
+
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
 
-      if (!name || !email || !password) {
-        setMessage(registerForm, "Name, email, and password are required.", true);
+      if (!name || !email || !password || !confirmPassword) {
+        setMessage(registerForm, "All fields are required.", true);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setMessage(registerForm, "Passwords do not match.", true);
         return;
       }
 

@@ -22,9 +22,23 @@
     <input type="email" id="email" required>
 
     <label for="password">Password:</label>
-    <input type="password" id="password" required>
+    <div class="password-field">
+      <input type="password" id="password" required>
+      <button type="button" class="icon-btn" data-toggle-password data-target="password" aria-label="Show password">
+        <span aria-hidden="true">👁</span>
+      </button>
+    </div>
+
+    <label for="confirmPassword">Confirm Password:</label>
+    <div class="password-field">
+      <input type="password" id="confirmPassword" required>
+      <button type="button" class="icon-btn" data-toggle-password data-target="confirmPassword" aria-label="Show password">
+        <span aria-hidden="true">👁</span>
+      </button>
+    </div>
 
     <button class="btn btn-primary" type="submit">Register</button>
+    <p class="help">Already have an account? <a href="/login">Login</a></p>
   </form>
 </div>
 

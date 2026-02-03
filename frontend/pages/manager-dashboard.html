@@ -8,31 +8,22 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body>
+<body class="elder">
+  <header data-manager-header></header>
   <main class="page">
     <section class="card" aria-labelledby="page-title">
       <header class="card-header">
-        <p class="eyebrow">Social Manager Demo</p>
+        <p class="eyebrow">Social Manager</p>
         <h1 id="page-title">Manager Dashboard</h1>
-        <p class="subtitle">Review the current state of your Social Manager application.</p>
+        <p class="subtitle"><span id="welcomeName">Welcome</span></p>
+        <p class="help">This dashboard is a work in progress.</p>
       </header>
-
-      <div id="dashboardContent" class="dashboard-content" aria-live="polite"></div>
-
-      <section class="dev-controls" aria-label="Developer controls">
-        <h2 class="section-title">Dev Controls (Demo Only)</h2>
-        <p class="help">These buttons help simulate admin review outcomes for the demo flow.</p>
-        <div class="button-grid">
-          <button type="button" class="secondary-btn" id="approveButton">Approve Application</button>
-          <button type="button" class="danger-btn" id="rejectButton">Reject Application</button>
-          <button type="button" class="ghost-btn" id="clearButton">Clear Application</button>
-        </div>
-      </section>
 
       <a class="back-link" href="/">Back to Home</a>
     </section>
   </main>
 
+  <script src="../js/manager-header.js"></script>
   <script src="../js/manager-dashboard.js"></script>
 </body>
 

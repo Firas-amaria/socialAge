@@ -373,6 +373,31 @@ textarea.invalid {
   font-size: 14px;
 }
 
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-field input {
+  flex: 1;
+}
+
+.icon-btn {
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.icon-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
 .error {
   margin: 0;
   color: var(--danger);
