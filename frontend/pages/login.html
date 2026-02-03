@@ -7,24 +7,26 @@
   <title>Login</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body class="elder">
+<body class="elder auth-page">
 
 <header data-elder-header></header>
 
-<div class="container">
-  <h2>Login</h2>
+<main class="auth-wrap">
+  <section class="card auth-card">
+    <h2>Login</h2>
 
-  <form id="loginForm">
-    <label for="email">Email:</label>
-    <input type="email" id="email" required>
+    <form id="loginForm" class="auth-form">
+      <label for="email">Email:</label>
+      <input type="email" id="email" required>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" required>
 
-    <button class="btn btn-primary" type="submit">Login</button>
-    <p class="help">Don’t have an account? <a href="/register">Register</a></p>
-  </form>
-</div>
+      <button class="btn btn-primary" type="submit">Login</button>
+      <p class="help">Don’t have an account? <a href="/register">Register</a></p>
+    </form>
+  </section>
+</main>
 
 <script src="/js/env.js"></script>
 <script src="../js/elder-header.js"></script>
