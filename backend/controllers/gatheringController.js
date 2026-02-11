@@ -2,14 +2,40 @@ const Gathering = require("../models/Gathering");
 
 const createGathering = async (req, res) => {
   try {
-    const { name, dateTime, location, smId, attendees = [] } = req.body;
+    const {
+      name,
+      date,
+      time,
+      location,
+      smId,
+      attendees = [],
+      iconId,
+      cardColor,
+      description,
+      status,
+      type,
+    } = req.body;
     const ownerId = smId || req.user?.id;
 
-    if (!name || !dateTime || !location || !ownerId) {
-      return res.status(400).json({ message: "name, dateTime, location, and smId are required" });
+    if (!name || !date || !time || !location || !ownerId) {
+      return res.status(400).json({
+        message: "name, date, time, location, and smId are required",
+      });
     }
 
-    const gathering = await Gathering.create({ name, dateTime, location, smId: ownerId, attendees });
+    const gathering = await Gathering.create({
+      name,
+      date,
+      time,
+      location,
+      smId: ownerId,
+      attendees,
+      iconId,
+      cardColor,
+      description,
+      status,
+      type,
+    });
     res.status(201).json(gathering);
   } catch (error) {
     res.status(500).json({ message: error.message });
