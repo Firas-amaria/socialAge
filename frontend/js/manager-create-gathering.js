@@ -36,6 +36,8 @@
   const modalCloseButtons = modal
     ? modal.querySelectorAll("[data-modal-close]")
     : [];
+  let pendingPayload = null;
+  let isSubmitting = false;
 
   const setError = (fieldId, message) => {
     const errorEl = errors[fieldId];
@@ -194,6 +196,41 @@
     document.body.classList.remove("modal-open");
   };
 
+  const submitGathering = async (payload) => {
+    if (isSubmitting) return;
+    isSubmitting = true;
+
+    if (confirmYesBtn) {
+      confirmYesBtn.disabled = true;
+      confirmYesBtn.textContent = "Creating...";
+    }
+
+    formStatus.textContent = "Sending gathering to server...";
+
+    try {
+      if (!window.api || typeof window.api.post !== "function") {
+        throw new Error("API client is not available on this page.");
+      }
+
+      const created = await window.api.post("/gatherings", payload);
+      const createdName = created?.name || payload.name;
+      formStatus.textContent = `Gathering "${createdName}" created successfully.`;
+      form.reset();
+      clearErrors();
+      updatePreview();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create gathering.";
+      formStatus.textContent = `Could not create gathering: ${message}`;
+    } finally {
+      isSubmitting = false;
+      if (confirmYesBtn) {
+        confirmYesBtn.disabled = false;
+        confirmYesBtn.textContent = "Yes, create";
+      }
+    }
+  };
+
   Object.values(fields).forEach((field) => {
     if (!field) return;
     if (Array.isArray(field)) {
@@ -212,9 +249,11 @@
   });
 
   if (confirmYesBtn) {
-    confirmYesBtn.addEventListener("click", () => {
+    confirmYesBtn.addEventListener("click", async () => {
+      if (!pendingPayload) return;
       closeModal();
-      formStatus.textContent = "Confirmed. API hookup coming next.";
+      await submitGathering(pendingPayload);
+      pendingPayload = null;
     });
   }
 
@@ -232,6 +271,7 @@
     }
 
     const payload = buildPayload();
+    pendingPayload = payload;
     openModal(payload);
   });
 
