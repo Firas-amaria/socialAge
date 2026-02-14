@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js --require dotenv/config",
-    "dev": "nodemon app.js --require dotenv/config"
+    "dev": "nodemon app.js --require dotenv/config",
+    "seed:users": "node --require dotenv/config seeders/seedUsers.js"
   },
   "dependencies": {
     "axios": "^1.8.1",

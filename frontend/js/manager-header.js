@@ -6,13 +6,9 @@
   const isLoggedIn = Boolean(token);
 
   header.innerHTML = `
-    <nav class="elder-nav">
-      <div class="nav-links">
-        <a href="/manager-dashboard">Dashboard</a>
-        <a href="/manager-gatherings">My Gatherings</a>
-        <a href="/manager-create-gathering">Create Gathering</a>
-      </div>
-      <div class="nav-actions">
+    <nav class="manager-topbar">
+      <div class="manager-topbar-left"></div>
+      <div class="manager-topbar-actions">
         ${
           isLoggedIn
             ? `
