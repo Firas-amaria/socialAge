@@ -11,30 +11,27 @@
 <body class="manager">
   <header data-manager-header></header>
   <div class="manager-shell">
-    <aside class="manager-sidebar">
-      <nav class="manager-nav" aria-label="Manager navigation">
-        <a href="/manager-dashboard">Manager Dashboard</a>
-        <a href="/manager-create-gathering">Create New Gathering</a>
-        <a href="/manager-gatherings" aria-current="page">Manage My Gatherings</a>
-      </nav>
-    </aside>
+    <aside class="manager-sidebar" data-manager-sidebar></aside>
     <main class="manager-content">
       <section class="card manager-page" aria-labelledby="page-title">
-      <header class="card-header">
-        <p class="eyebrow">Social Manager Demo</p>
-        <h1 id="page-title">My Gatherings</h1>
-        <p class="subtitle">Coming soon. Manage your gatherings here.</p>
-      </header>
+        <header class="card-header">
+          <p class="eyebrow">Social Manager Demo</p>
+          <h1 id="page-title">My Gatherings</h1>
+          <p class="subtitle">Track attendance and manage the gatherings you created.</p>
+        </header>
 
-      <div class="empty-state">
-        <p class="empty-title">Coming soon</p>
-        <p class="subtitle">This manager tool is under construction.</p>
-        <a class="primary-btn button-link" href="/manager-dashboard">Back to Dashboard</a>
-      </div>
+        <p id="gatheringsStatus" class="status" role="status" aria-live="polite">Loading gatherings...</p>
+        <div id="managerGatheringsList" class="manager-gatherings-list" aria-live="polite"></div>
+
+        <a class="back-link" href="/manager-dashboard">Back to Dashboard</a>
       </section>
     </main>
   </div>
+  <script src="../js/api.js"></script>
+  <script src="../js/gathering-card.js"></script>
   <script src="../js/manager-header.js"></script>
+  <script src="../js/manager-sidebar.js"></script>
+  <script src="../js/manager-gatherings.js"></script>
 </body>
 
 </html>
