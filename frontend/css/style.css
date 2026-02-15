@@ -1174,6 +1174,92 @@ button:disabled {
   gap: 12px;
 }
 
+.manager-gatherings-list {
+  display: grid;
+  gap: 18px;
+}
+
+.manager-gathering-item {
+  margin-bottom: 0;
+}
+
+.manager-gathering-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(300px, 1fr) minmax(260px, 0.9fr);
+  align-items: start;
+}
+
+.manager-gathering-card-wrap .gathering-card {
+  height: 100%;
+}
+
+.manager-gathering-details {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.manager-gathering-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.manager-gathering-count {
+  margin: 0;
+  color: var(--ink);
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.manager-gathering-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.manager-gathering-meta strong {
+  color: var(--ink);
+}
+
+.manager-gathering-subtitle {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.manager-attendee-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink);
+  display: grid;
+  gap: 6px;
+}
+
+.manager-gathering-actions {
+  margin-top: 4px;
+}
+
+.status--error {
+  background: rgba(226, 74, 74, 0.08);
+  border: 1px solid rgba(226, 74, 74, 0.28);
+  color: #991b1b;
+}
+
+.status--success {
+  background: rgba(74, 144, 226, 0.08);
+  border: 1px solid rgba(74, 144, 226, 0.28);
+  color: #1d4e89;
+}
+
 .empty-title {
   margin: 0;
   font-size: 20px;
@@ -1228,6 +1314,10 @@ button:disabled {
 
   .preview-panel {
     position: static;
+  }
+
+  .manager-gathering-grid {
+    grid-template-columns: 1fr;
   }
 }
 

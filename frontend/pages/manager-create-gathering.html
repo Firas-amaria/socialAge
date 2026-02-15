@@ -11,13 +11,7 @@
 <body class="manager">
   <header data-manager-header></header>
   <div class="manager-shell">
-    <aside class="manager-sidebar">
-      <nav class="manager-nav" aria-label="Manager navigation">
-        <a href="/manager-dashboard">Manager Dashboard</a>
-        <a href="/manager-create-gathering" aria-current="page">Create New Gathering</a>
-        <a href="/manager-gatherings">Manage My Gatherings</a>
-      </nav>
-    </aside>
+    <aside class="manager-sidebar" data-manager-sidebar></aside>
     <main class="manager-content">
       <section class="card manager-page card--wide" aria-labelledby="page-title">
       <header class="card-header">
@@ -247,6 +241,7 @@
   </div>
   <script src="../js/api.js"></script>
   <script src="../js/manager-header.js"></script>
+  <script src="../js/manager-sidebar.js"></script>
   <script src="../js/gathering-card.js"></script>
   <script src="../js/manager-create-gathering.js"></script>
 </body>
