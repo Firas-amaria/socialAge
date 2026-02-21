@@ -56,4 +56,72 @@ const listUsersByRole = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, listUsersByRole };
+const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const user = await User.findById(userId).select("name email role createdAt updatedAt");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const { name, currentPassword, newPassword } = req.body || {};
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (typeof name === "string" && name.trim()) {
+      user.name = name.trim();
+    }
+
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: "currentPassword is required to set a new password" });
+      }
+      const matches = await bcrypt.compare(currentPassword, user.password);
+      if (!matches) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      user.password = newPassword;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  listUsersByRole,
+  getCurrentUser,
+  updateCurrentUser,
+};

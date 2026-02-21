@@ -5,6 +5,7 @@ const {
   createApplication,
   listApplications,
   getApplicationById,
+  getMyLatestApplication,
   updateApplicationStatus,
 } = require("../controllers/smApplicationController");
 
@@ -38,6 +39,7 @@ router.post(
   createApplication
 );
 router.get("/", authenticateUser, listApplications);
+router.get("/me/latest", authenticateUser, getMyLatestApplication);
 router.get("/:id", authenticateUser, getApplicationById);
 router.patch("/:id/status", authenticateUser, updateApplicationStatus);
 

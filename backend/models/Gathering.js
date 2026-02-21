@@ -11,17 +11,29 @@ const GatheringSchema = new mongoose.Schema(
     },
     time: {
       type: String,
-      required: true,
+      trim: true,
+      match: /^\d{2}:\d{2}$/,
+    },
+    startTime: {
+      type: String,
+      trim: true,
+      match: /^\d{2}:\d{2}$/,
+    },
+    endTime: {
+      type: String,
       trim: true,
       match: /^\d{2}:\d{2}$/,
     },
     location: { type: String, required: true, trim: true },
+    address: { type: String, trim: true },
+    maxAttendees: { type: Number, min: 1, default: 30 },
     iconId: { type: String, trim: true },
     cardColor: { type: String, trim: true },
     description: { type: String, trim: true },
+    notes: { type: String, trim: true },
     status: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["draft", "active", "inactive", "cancelled"],
       default: "active",
     },
     type: {

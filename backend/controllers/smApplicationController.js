@@ -2,7 +2,8 @@ const nodemailer = require("nodemailer");
 const SMApplication = require("../models/SMApplication");
 const User = require("../models/User");
 
-const ALLOWED_STATUSES = ["pending", "approved", "denied"];
+const ALLOWED_STATUSES = ["pending", "approved", "rejected", "denied"];
+const ADMIN_ROLES = ["Admin"];
 
 const SMTP_PORT = Number(process.env.SMTP_PORT) || 587;
 const transporter = nodemailer.createTransport({
@@ -37,6 +38,11 @@ const createApplication = async (req, res) => {
 
     if (!governmentIdImage) {
       return res.status(400).json({ message: "governmentIdImage file is required" });
+    }
+
+    const existingPending = await SMApplication.findOne({ userId, status: "pending" });
+    if (existingPending) {
+      return res.status(400).json({ message: "You already have a pending application" });
     }
 
     const to = process.env.MAIL_TO;
@@ -105,7 +111,13 @@ const createApplication = async (req, res) => {
 
 const listApplications = async (_req, res) => {
   try {
-    const applications = await SMApplication.find().populate("userId", "name email");
+    const userId = _req.user?.id;
+    const role = _req.user?.role;
+
+    const query = ADMIN_ROLES.includes(role) ? {} : { userId };
+    const applications = await SMApplication.find(query)
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email role");
     res.json(applications);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -114,10 +126,33 @@ const listApplications = async (_req, res) => {
 
 const getApplicationById = async (req, res) => {
   try {
-    const application = await SMApplication.findById(req.params.id).populate("userId", "name email");
+    const role = req.user?.role;
+    const application = await SMApplication.findById(req.params.id).populate("userId", "name email role");
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
     }
+
+    if (!ADMIN_ROLES.includes(role) && application.userId?._id?.toString() !== req.user?.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    res.json(application);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getMyLatestApplication = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const application = await SMApplication.findOne({ userId })
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email role");
+
+    if (!application) {
+      return res.status(404).json({ message: "No application found for this user" });
+    }
+
     res.json(application);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -126,19 +161,35 @@ const getApplicationById = async (req, res) => {
 
 const updateApplicationStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-    if (!ALLOWED_STATUSES.includes(status)) {
+    const role = req.user?.role;
+    if (!ADMIN_ROLES.includes(role)) {
+      return res.status(403).json({ message: "Only admins can update application status" });
+    }
+
+    const { status, adminNotes } = req.body;
+    const normalizedStatus = status === "denied" ? "rejected" : status;
+
+    if (!ALLOWED_STATUSES.includes(normalizedStatus)) {
       return res.status(400).json({ message: `Status must be one of: ${ALLOWED_STATUSES.join(", ")}` });
     }
 
-    const updated = await SMApplication.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    const updates = { status: normalizedStatus };
+    if (typeof adminNotes === "string") {
+      updates.adminNotes = adminNotes.trim();
+    }
+
+    const updated = await SMApplication.findByIdAndUpdate(req.params.id, updates, { new: true });
 
     if (!updated) {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    if (status === "approved" && updated.userId) {
+    if (normalizedStatus === "approved" && updated.userId) {
       await User.findByIdAndUpdate(updated.userId, { role: "SocialM" });
+    }
+
+    if (normalizedStatus === "rejected" && updated.userId) {
+      await User.findByIdAndUpdate(updated.userId, { role: "Elderly" });
     }
 
     res.json(updated);
@@ -151,5 +202,6 @@ module.exports = {
   createApplication,
   listApplications,
   getApplicationById,
+  getMyLatestApplication,
   updateApplicationStatus,
 };

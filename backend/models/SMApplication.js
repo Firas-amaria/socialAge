@@ -3,10 +3,11 @@ const mongoose = require("mongoose");
 const SMApplicationSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-    status: { type: String, enum: ["pending", "approved", "denied"], default: "pending" },
+    status: { type: String, enum: ["pending", "approved", "rejected", "denied"], default: "pending" },
     governmentIdNumber: { type: String, required: true, trim: true },
     fullName: { type: String, required: true, trim: true },
     references: { type: String, default: "", trim: true },
+    adminNotes: { type: String, default: "", trim: true },
     employmentProof: {
       filename: { type: String, default: "" },
       mimetype: { type: String, default: "" },

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gathering Attendees</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-manager-header></header>
+
+<div class="manager-shell">
+  <aside class="manager-sidebar">
+    <nav class="manager-nav" aria-label="Manager navigation">
+      <a href="/manager-dashboard">Manager Dashboard</a>
+      <a href="/manager-application-status">Application Status</a>
+      <a href="/manager-create-gathering">Create New Gathering</a>
+      <a href="/manager-gatherings" aria-current="page">Manage My Gatherings</a>
+      <a href="/manager-profile">Profile</a>
+    </nav>
+  </aside>
+
+  <main class="manager-content">
+    <section class="card manager-page" aria-labelledby="attendees-title">
+      <header class="card-header">
+        <p class="eyebrow">Social Manager</p>
+        <h1 id="attendees-title">Gathering Attendees</h1>
+        <p class="subtitle" id="attendeesMeta">Loading gathering details...</p>
+      </header>
+
+      <div id="attendeesList"></div>
+      <a class="secondary-btn button-link" href="/manager-gatherings">Back to Manage Gatherings</a>
+    </section>
+  </main>
+</div>
+
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/manager-common.js"></script>
+<script src="../js/manager-header.js"></script>
+<script src="../js/manager-attendees.js"></script>
+</body>
+</html>

@@ -8,13 +8,10 @@ const additionalDocuments = document.getElementById("additionalDocuments");
 const formSuccess = document.getElementById("formSuccess");
 const token = window.localStorage.getItem("token");
 
-if (!token) {
+if (!window.managerAuth?.requireLogin() || !token) {
   if (formSuccess) {
     formSuccess.textContent = "Please log in to submit an application.";
   }
-  setTimeout(() => {
-    window.location.href = "/login";
-  }, 800);
 }
 
 const errors = {
@@ -150,18 +147,6 @@ form.addEventListener("submit", (event) => {
   const reader = new FileReader();
 
   reader.onload = async () => {
-    const application = {
-      id: `app_${Date.now()}`,
-      userId: "public",
-      fullLegalName: fullLegalName.value.trim(),
-      governmentIdNumber: governmentIdNumber.value.trim(),
-      referenceText: referenceText.value.trim(),
-      idImageDataUrl: reader.result,
-      status: "pending",
-      submittedAt: new Date().toISOString(),
-      adminNotes: "",
-    };
-
     try {
       const env = window.__ENV || {};
       const baseUrl = (env.API_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
@@ -188,16 +173,10 @@ form.addEventListener("submit", (event) => {
         throw new Error(message);
       }
 
-      const created = await response.json().catch(() => null);
-      if (created && created.createdAt) {
-        application.submittedAt = created.createdAt;
-      }
-
-      localStorage.setItem("sm_application", JSON.stringify(application));
       formSuccess.textContent = "Application submitted. Redirecting...";
 
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = "/manager-application-status";
       }, 1200);
     } catch (error) {
       formSuccess.textContent = error.message || "Submission failed.";
