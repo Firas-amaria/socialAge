@@ -53,9 +53,17 @@
   };
 
   const toSortValue = (gathering) => {
-    const source = `${gathering?.date || ""}T${gathering?.time || "00:00"}`;
+    const source = `${gathering?.date || ""}T${gathering?.startTime || gathering?.time || "00:00"}`;
     const parsed = new Date(source).getTime();
     return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
+  };
+
+  const formatType = (value) => {
+    if (!value) return "--";
+    return value
+      .toString()
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   };
 
   const formatAttendeeName = (attendee) => {
@@ -141,21 +149,27 @@
     const item = document.createElement("article");
     item.className = "card manager-gathering-item";
 
-    const grid = document.createElement("div");
-    grid.className = "manager-gathering-grid";
-
-    const cardWrap = document.createElement("div");
-    cardWrap.className = "manager-gathering-card-wrap";
-    if (typeof window.createGatheringCard === "function") {
-      cardWrap.appendChild(window.createGatheringCard(gathering));
-    } else {
-      cardWrap.appendChild(
-        makeText("p", "subtitle", "Card preview is unavailable on this page."),
-      );
-    }
-
-    const side = document.createElement("div");
-    side.className = "manager-gathering-details";
+    const content = document.createElement("div");
+    content.className = "manager-gathering-details";
+    content.appendChild(makeText("h3", "manager-gathering-title", gathering.name || "--"));
+    content.appendChild(
+      makeMeta(
+        "When",
+        toDisplayDate(
+          gathering.date,
+          gathering.startTime || gathering.time,
+        ),
+      ),
+    );
+    content.appendChild(makeMeta("Where", gathering.location || "--"));
+    content.appendChild(makeMeta("Type", formatType(gathering.type)));
+    content.appendChild(
+      makeText(
+        "p",
+        "manager-gathering-description",
+        gathering.description || "No description provided.",
+      ),
+    );
 
     const top = document.createElement("div");
     top.className = "manager-gathering-top";
@@ -180,10 +194,15 @@
     top.appendChild(countWrap);
     top.appendChild(badge);
 
-    side.appendChild(top);
-    side.appendChild(makeMeta("When", toDisplayDate(gathering.date, gathering.time)));
-    side.appendChild(makeMeta("Location", gathering.location || "--"));
-    side.appendChild(
+    content.appendChild(top);
+    content.appendChild(
+      makeMeta(
+        "Time",
+        `${gathering.startTime || gathering.time || "--:--"} - ${gathering.endTime || "--:--"}`,
+      ),
+    );
+    content.appendChild(makeMeta("Status", gathering.status || "--"));
+    content.appendChild(
       makeMeta(
         "Created",
         gathering.createdAt
@@ -193,11 +212,11 @@
     );
 
     const attendeesLabel = makeText("p", "manager-gathering-subtitle", "Attendees");
-    side.appendChild(attendeesLabel);
+    content.appendChild(attendeesLabel);
 
     const attendees = getAttendees(gathering);
     if (attendees.length === 0) {
-      side.appendChild(makeText("p", "help", "No attendees yet."));
+      content.appendChild(makeText("p", "help", "No attendees yet."));
     } else {
       const list = document.createElement("ul");
       list.className = "manager-attendee-list";
@@ -214,7 +233,7 @@
         list.appendChild(li);
       }
 
-      side.appendChild(list);
+      content.appendChild(list);
     }
 
     const actions = document.createElement("div");
@@ -230,11 +249,8 @@
     });
 
     actions.appendChild(toggleStatusBtn);
-    side.appendChild(actions);
-
-    grid.appendChild(cardWrap);
-    grid.appendChild(side);
-    item.appendChild(grid);
+    content.appendChild(actions);
+    item.appendChild(content);
 
     return item;
   };

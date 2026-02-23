@@ -149,7 +149,7 @@ form.addEventListener("submit", (event) => {
   reader.onload = async () => {
     try {
       const env = window.__ENV || {};
-      const baseUrl = (env.API_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
+      const baseUrl = (env.API_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 
       const formData = new FormData();
       formData.append("fullName", fullLegalName.value.trim());

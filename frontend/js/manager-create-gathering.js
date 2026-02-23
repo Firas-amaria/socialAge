@@ -44,6 +44,9 @@
 
   let pendingPayload = null;
   let isSubmitting = false;
+  const hasField = (field) => Boolean(field);
+  const getText = (field) => (field ? field.value.trim() : "");
+  const getRaw = (field) => (field ? field.value : "");
 
   const getRadioValue = (name) => {
     const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -69,21 +72,47 @@
     Object.keys(errors).forEach((field) => setError(field, ""));
   };
 
-  const buildPayload = () => ({
-    name: fields.name.value.trim(),
-    date: fields.date.value.trim(),
-    startTime: fields.startTime.value.trim(),
-    endTime: fields.endTime.value.trim(),
-    location: fields.location.value.trim(),
-    address: fields.address.value.trim(),
-    maxAttendees: Number(fields.maxAttendees.value || 30),
-    iconId: getRadioValue("iconId"),
-    cardColor: normalizeColor(getRadioValue("cardColor")),
-    description: fields.description.value.trim(),
-    notes: fields.notes.value.trim(),
-    status: fields.status.value,
-    type: fields.type.value,
-  });
+  const toDateInputValue = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const applyDefaultValues = () => {
+    if (fields.date && !fields.date.value) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      fields.date.value = toDateInputValue(tomorrow);
+    }
+    if (fields.startTime && !fields.startTime.value) {
+      fields.startTime.value = "13:00";
+    }
+    if (fields.endTime && !fields.endTime.value) {
+      fields.endTime.value = "14:00";
+    }
+  };
+
+  const buildPayload = () => {
+    const startTime = getText(fields.startTime);
+    const endTime = getText(fields.endTime) || startTime;
+    return {
+      name: getText(fields.name),
+      date: getText(fields.date),
+      time: startTime,
+      startTime,
+      endTime,
+      location: getText(fields.location),
+      address: getText(fields.address),
+      maxAttendees: Number(getRaw(fields.maxAttendees) || 30),
+      iconId: getRadioValue("iconId"),
+      cardColor: normalizeColor(getRadioValue("cardColor")),
+      description: getText(fields.description),
+      notes: getText(fields.notes),
+      status: getRaw(fields.status) || "active",
+      type: getRaw(fields.type) || "free_for_all",
+    };
+  };
 
   const updatePreview = () => {
     if (!previewContainer || typeof window.createGatheringCard !== "function") return;
@@ -117,11 +146,11 @@
       setError("gatheringTime", "Valid start time is required.");
       valid = false;
     }
-    if (!payload.endTime || !isValidTime(payload.endTime)) {
+    if (hasField(fields.endTime) && (!payload.endTime || !isValidTime(payload.endTime))) {
       setError("gatheringEndTime", "Valid end time is required.");
       valid = false;
     }
-    if (payload.endTime && payload.startTime && payload.endTime <= payload.startTime) {
+    if (hasField(fields.endTime) && payload.endTime && payload.startTime && payload.endTime <= payload.startTime) {
       setError("gatheringEndTime", "End time must be after start time.");
       valid = false;
     }
@@ -129,7 +158,7 @@
       setError("gatheringLocation", "Location is required.");
       valid = false;
     }
-    if (!payload.maxAttendees || payload.maxAttendees < 1) {
+    if (hasField(fields.maxAttendees) && (!payload.maxAttendees || payload.maxAttendees < 1)) {
       setError("maxAttendees", "Max attendees must be at least 1.");
       valid = false;
     }
@@ -149,7 +178,7 @@
       setError("type", "Please choose a type.");
       valid = false;
     }
-    if (!payload.status) {
+    if (hasField(fields.status) && !payload.status) {
       setError("status", "Please choose a status.");
       valid = false;
     }
@@ -191,6 +220,7 @@
       const created = await window.api.post("/gatherings", payload);
       formStatus.textContent = `Gathering "${created?.name || payload.name}" created successfully.`;
       form.reset();
+      applyDefaultValues();
       clearErrors();
       updatePreview();
     } catch (error) {
@@ -242,5 +272,6 @@
     openModal(pendingPayload);
   });
 
+  applyDefaultValues();
   updatePreview();
 })();

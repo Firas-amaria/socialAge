@@ -14,218 +14,233 @@
     <aside class="manager-sidebar" data-manager-sidebar></aside>
     <main class="manager-content">
       <section class="card manager-page card--wide" aria-labelledby="page-title">
-      <header class="card-header">
-        <p class="eyebrow">Social Manager Demo</p>
-        <h1 id="page-title">Create Gathering</h1>
-        <p class="subtitle">Set the details for a new gathering card.</p>
-      </header>
+        <header class="card-header">
+          <h1 id="page-title">Create Gathering</h1>
+          <p class="subtitle">Set the details for a new gathering card.</p>
+        </header>
 
-      <div class="split-layout">
-        <form id="gatheringForm" class="form" novalidate>
-          <div class="field">
-            <label for="gatheringName">Gathering Name</label>
-            <input id="gatheringName" name="name" type="text" placeholder="Morning Coffee Club" required>
-            <p class="error" id="gatheringNameError" aria-live="polite"></p>
-          </div>
+        <div class="create-gathering-shell">
+          <form id="gatheringForm" class="form form--compact-inputs form--grouped" novalidate>
+            <div class="form-panels">
+              <section class="form-panel" aria-labelledby="infoSectionTitle">
+                <h2 id="infoSectionTitle" class="section-title section-title--form">Info</h2>
 
-          <div class="form-row form-row--inline">
-            <div class="field">
-              <label for="gatheringDate">Date</label>
-              <input id="gatheringDate" name="date" type="date" required>
-              <p class="help">Use the calendar picker.</p>
-              <p class="error" id="gatheringDateError" aria-live="polite"></p>
-            </div>
-
-            <div class="field">
-              <label for="gatheringTime">Time</label>
-              <input id="gatheringTime" name="time" type="time" required>
-              <p class="help">Format: HH:MM.</p>
-              <p class="error" id="gatheringTimeError" aria-live="polite"></p>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="gatheringLocation">Location</label>
-            <input id="gatheringLocation" name="location" type="text" placeholder="Community Hall, Room 2" required>
-            <p class="error" id="gatheringLocationError" aria-live="polite"></p>
-          </div>
-
-          <div class="field">
-            <fieldset class="option-field">
-              <legend>Card Icon</legend>
-              <div class="option-grid" data-field="iconId">
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="games">
-                  <span class="option-card">
-                    <span class="option-icon">🎲</span>
-                    <span class="option-text">Games</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="food">
-                  <span class="option-card">
-                    <span class="option-icon">🍽️</span>
-                    <span class="option-text">Food</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="coffee">
-                  <span class="option-card">
-                    <span class="option-icon">☕</span>
-                    <span class="option-text">Coffee</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="art">
-                  <span class="option-card">
-                    <span class="option-icon">🎨</span>
-                    <span class="option-text">Arts</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="music">
-                  <span class="option-card">
-                    <span class="option-icon">🎵</span>
-                    <span class="option-text">Music</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="outdoor">
-                  <span class="option-card">
-                    <span class="option-icon">🌳</span>
-                    <span class="option-text">Outdoor</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="book">
-                  <span class="option-card">
-                    <span class="option-icon">📚</span>
-                    <span class="option-text">Book Club</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="iconId" value="fitness">
-                  <span class="option-card">
-                    <span class="option-icon">🧘</span>
-                    <span class="option-text">Fitness</span>
-                  </span>
-                </label>
-              </div>
-              <p class="help">Used to pick the card icon on the frontend.</p>
-            </fieldset>
-            <p class="error" id="iconIdError" aria-live="polite"></p>
-          </div>
-
-          <div class="field">
-            <fieldset class="option-field">
-              <legend>Card Color</legend>
-              <div class="option-grid option-grid--colors" data-field="cardColor">
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="cardColor" value="#e66a6a">
-                  <span class="option-card">
-                    <span class="color-swatch" style="background:#e66a6a;"></span>
-                    <span class="option-text">Soft Red</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="cardColor" value="#4a90e2">
-                  <span class="option-card">
-                    <span class="color-swatch" style="background:#4a90e2;"></span>
-                    <span class="option-text">Calm Blue</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="cardColor" value="#f2c94c">
-                  <span class="option-card">
-                    <span class="color-swatch" style="background:#f2c94c;"></span>
-                    <span class="option-text">Warm Yellow</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="cardColor" value="#4caf82">
-                  <span class="option-card">
-                    <span class="color-swatch" style="background:#4caf82;"></span>
-                    <span class="option-text">Soft Green</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="cardColor" value="#8b6cfb">
-                  <span class="option-card">
-                    <span class="color-swatch" style="background:#8b6cfb;"></span>
-                    <span class="option-text">Gentle Purple</span>
-                  </span>
-                </label>
-                <label class="option-item">
-                  <input class="option-input" type="radio" name="cardColor" value="#94a3b8">
-                  <span class="option-card">
-                    <span class="color-swatch" style="background:#94a3b8;"></span>
-                    <span class="option-text">Cool Gray</span>
-                  </span>
-                </label>
-              </div>
-              <p class="help">Pick a preset color for the card.</p>
-            </fieldset>
-            <p class="error" id="cardColorError" aria-live="polite"></p>
-          </div>
-
-          <div class="field">
-            <label for="description">Description</label>
-            <textarea id="description" name="description" rows="4" placeholder="Add a short overview of the gathering." required></textarea>
-            <p class="error" id="descriptionError" aria-live="polite"></p>
-          </div>
-          <div class="field">
-            <label for="type">Type</label>
-            <select id="type" name="type" required>
-              <option value="" selected>Select type</option>
-              <option value="free_for_all">Free for all</option>
-              <option value="signup_required">Signup required</option>
-            </select>
-            <p class="help">Signup required hides details for logged-out users.</p>
-            <p class="error" id="typeError" aria-live="polite"></p>
-          </div>
-
-          <button type="submit" class="primary-btn">Create Gathering</button>
-          <p id="formStatus" class="status" role="status" aria-live="polite"></p>
-        </form>
-
-        <aside class="preview preview-panel" id="gatheringPreview">
-          <p class="preview-title">Card Preview</p>
-          <p class="help" id="previewDebug">Preview status: waiting for input.</p>
-          <div id="previewCard" aria-live="polite">
-            <div class="gathering-card gathering-card--placeholder">
-              <div class="gathering-card__header">
-                <div class="gathering-card__icon gathering-card__icon--placeholder">?</div>
-                <div class="gathering-card__divider"></div>
-                <div class="gathering-card__title">
-                  <h3 class="is-placeholder">--</h3>
-                  <span class="gathering-card__type is-placeholder">--</span>
+                <div class="field">
+                  <label for="gatheringName">Gathering Name</label>
+                  <input id="gatheringName" name="name" type="text" placeholder="Morning Coffee Club" required>
+                  <p class="error" id="gatheringNameError" aria-live="polite"></p>
                 </div>
-              </div>
-              <div class="gathering-card__body">
-                <p class="gathering-card__description is-placeholder">--</p>
-                <div class="gathering-card__meta">
-                  <div class="gathering-card__meta-row">
-                    <span>When</span>
-                    <strong class="is-placeholder">--</strong>
+
+                <div class="time-stack-layout">
+                  <div class="field">
+                    <label for="gatheringDate">Date</label>
+                    <input id="gatheringDate" name="date" type="date" required>
+                    <p class="error" id="gatheringDateError" aria-live="polite"></p>
                   </div>
-                  <div class="gathering-card__meta-row">
-                    <span>Where</span>
-                    <strong class="is-placeholder">--</strong>
-                  </div>
-                  <div class="gathering-card__meta-row">
-                    <span>Settings</span>
-                    <strong class="is-placeholder">--</strong>
+                  <div class="time-stack-right">
+                    <div class="field">
+                      <label for="gatheringTime">Start Time</label>
+                      <input id="gatheringTime" name="time" type="time" required>
+                      <p class="error" id="gatheringTimeError" aria-live="polite"></p>
+                    </div>
+                    <div class="field">
+                      <label for="gatheringEndTime">End Time</label>
+                      <input id="gatheringEndTime" name="endTime" type="time" required>
+                      <p class="error" id="gatheringEndTimeError" aria-live="polite"></p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
 
-      <a class="back-link" href="/manager-dashboard">Back to Dashboard</a>
-    </section>
-  </main>
+                <div class="field">
+                  <label for="gatheringLocation">Location</label>
+                  <input id="gatheringLocation" name="location" type="text" placeholder="Community Hall, Room 2"
+                    required>
+                  <p class="error" id="gatheringLocationError" aria-live="polite"></p>
+                </div>
+
+                <div class="field">
+                  <label for="description">Description</label>
+                  <textarea id="description" name="description" rows="4"
+                    placeholder="Add a short overview of the gathering." required></textarea>
+                  <p class="error" id="descriptionError" aria-live="polite"></p>
+                </div>
+
+                <div class="field">
+                  <label for="type">Type</label>
+                  <select id="type" name="type" required>
+                    <option value="free_for_all" selected>Free for all</option>
+                    <option value="signup_required">Signup required</option>
+                  </select>
+                  <p class="help">Signup required hides details for logged-out users.</p>
+                  <p class="error" id="typeError" aria-live="polite"></p>
+                </div>
+              </section>
+
+              <section class="form-panel" aria-labelledby="looksSectionTitle">
+                <h2 id="looksSectionTitle" class="section-title section-title--form">Looks</h2>
+
+                <div class="field">
+                  <fieldset class="option-field">
+                    <legend>Card Icon</legend>
+                    <div class="option-grid" data-field="iconId">
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="games" checked>
+                        <span class="option-card">
+                          <span class="option-icon">🎲</span>
+                          <span class="option-text">Games</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="food">
+                        <span class="option-card">
+                          <span class="option-icon">🍽️</span>
+                          <span class="option-text">Food</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="coffee">
+                        <span class="option-card">
+                          <span class="option-icon">☕</span>
+                          <span class="option-text">Coffee</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="art">
+                        <span class="option-card">
+                          <span class="option-icon">🎨</span>
+                          <span class="option-text">Arts</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="music">
+                        <span class="option-card">
+                          <span class="option-icon">🎵</span>
+                          <span class="option-text">Music</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="outdoor">
+                        <span class="option-card">
+                          <span class="option-icon">🌳</span>
+                          <span class="option-text">Outdoor</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="book">
+                        <span class="option-card">
+                          <span class="option-icon">📚</span>
+                          <span class="option-text">Book Club</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="iconId" value="fitness">
+                        <span class="option-card">
+                          <span class="option-icon">🧘</span>
+                          <span class="option-text">Fitness</span>
+                        </span>
+                      </label>
+                    </div>
+                    <p class="help">Used to pick the card icon on the frontend.</p>
+                  </fieldset>
+                  <p class="error" id="iconIdError" aria-live="polite"></p>
+                </div>
+
+                <div class="field">
+                  <fieldset class="option-field">
+                    <legend>Card Color</legend>
+                    <div class="option-grid option-grid--colors" data-field="cardColor">
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="cardColor" value="#e66a6a">
+                        <span class="option-card">
+                          <span class="color-swatch" style="background:#e66a6a;"></span>
+                          <span class="option-text">Soft Red</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="cardColor" value="#4a90e2">
+                        <span class="option-card">
+                          <span class="color-swatch" style="background:#4a90e2;"></span>
+                          <span class="option-text">Calm Blue</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="cardColor" value="#f2c94c">
+                        <span class="option-card">
+                          <span class="color-swatch" style="background:#f2c94c;"></span>
+                          <span class="option-text">Warm Yellow</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="cardColor" value="#4caf82">
+                        <span class="option-card">
+                          <span class="color-swatch" style="background:#4caf82;"></span>
+                          <span class="option-text">Soft Green</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="cardColor" value="#8b6cfb">
+                        <span class="option-card">
+                          <span class="color-swatch" style="background:#8b6cfb;"></span>
+                          <span class="option-text">Gentle Purple</span>
+                        </span>
+                      </label>
+                      <label class="option-item">
+                        <input class="option-input" type="radio" name="cardColor" value="#94a3b8" checked>
+                        <span class="option-card">
+                          <span class="color-swatch" style="background:#94a3b8;"></span>
+                          <span class="option-text">Cool Gray</span>
+                        </span>
+                      </label>
+                    </div>
+                    <p class="help">Pick a preset color for the card.</p>
+                  </fieldset>
+                  <p class="error" id="cardColorError" aria-live="polite"></p>
+                </div>
+              </section>
+            </div>
+
+            <aside class="preview preview-panel preview-panel--inline" id="gatheringPreview">
+              <p class="preview-title">Card Preview</p>
+              <p class="help" id="previewDebug">Preview status: waiting for input.</p>
+              <div id="previewCard" aria-live="polite">
+                <div class="gathering-card gathering-card--placeholder">
+                  <div class="gathering-card__header">
+                    <div class="gathering-card__icon gathering-card__icon--placeholder">?</div>
+                    <div class="gathering-card__divider"></div>
+                    <div class="gathering-card__title">
+                      <h3 class="is-placeholder">--</h3>
+                      <span class="gathering-card__type is-placeholder">--</span>
+                    </div>
+                  </div>
+                  <div class="gathering-card__body">
+                    <p class="gathering-card__description is-placeholder">--</p>
+                    <div class="gathering-card__meta">
+                      <div class="gathering-card__meta-row">
+                        <span>When</span>
+                        <strong class="is-placeholder">--</strong>
+                      </div>
+                      <div class="gathering-card__meta-row">
+                        <span>Where</span>
+                        <strong class="is-placeholder">--</strong>
+                      </div>
+                      <div class="gathering-card__meta-row">
+                        <span>Settings</span>
+                        <strong class="is-placeholder">--</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            <button type="submit" class="primary-btn">Create Gathering</button>
+            <p id="formStatus" class="status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <a class="back-link" href="/manager-dashboard">Back to Dashboard</a>
+      </section>
+    </main>
   </div>
   <div class="modal" id="confirmModal" aria-hidden="true">
     <div class="modal__backdrop" data-modal-close></div>
@@ -239,7 +254,9 @@
       </div>
     </div>
   </div>
+  <script src="/js/env.js"></script>
   <script src="../js/api.js"></script>
+  <script src="../js/manager-common.js"></script>
   <script src="../js/manager-header.js"></script>
   <script src="../js/manager-sidebar.js"></script>
   <script src="../js/gathering-card.js"></script>
@@ -247,5 +264,3 @@
 </body>
 
 </html>
-
-

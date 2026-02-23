@@ -1,6 +1,6 @@
 (() => {
   const env = window.__ENV || {};
-  const apiBase = (env.API_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
+  const apiBase = (env.API_BASE_URL || "http://localhost:3000").replace(/\/$/, "");
 
   const postJson = async (path, payload) => {
     const res = await fetch(`${apiBase}${path}`, {

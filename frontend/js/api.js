@@ -1,6 +1,6 @@
 (() => {
   const env = window.__ENV || {};
-  const baseUrl = env.API_BASE_URL || "http://localhost:3001";
+  const baseUrl = env.API_BASE_URL || "http://localhost:3000";
 
   const getToken = () => window.localStorage.getItem("token") || "";
 
