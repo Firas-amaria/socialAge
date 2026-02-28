@@ -65,6 +65,86 @@
     return fallback;
   };
 
+  const openGuestRegistrationModal = (gatheringName) =>
+    new Promise((resolve) => {
+      const overlay = document.createElement("div");
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.style.position = "fixed";
+      overlay.style.inset = "0";
+      overlay.style.background = "rgba(0,0,0,0.45)";
+      overlay.style.display = "flex";
+      overlay.style.alignItems = "center";
+      overlay.style.justifyContent = "center";
+      overlay.style.zIndex = "10000";
+      overlay.style.padding = "16px";
+
+      const panel = document.createElement("div");
+      panel.style.background = "#fff";
+      panel.style.borderRadius = "12px";
+      panel.style.padding = "16px";
+      panel.style.width = "100%";
+      panel.style.maxWidth = "420px";
+      panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
+      panel.innerHTML = `
+        <h3 style="margin:0 0 8px 0;">Register for ${cleanText(gatheringName) || "this gathering"}</h3>
+        <p class="subtitle" style="margin:0 0 12px 0;">Enter your name and email to register.</p>
+        <label style="display:block;margin-bottom:8px;">
+          <span style="display:block;font-size:14px;margin-bottom:4px;">Name</span>
+          <input id="guestRegisterName" type="text" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;" />
+        </label>
+        <label style="display:block;margin-bottom:8px;">
+          <span style="display:block;font-size:14px;margin-bottom:4px;">Email</span>
+          <input id="guestRegisterEmail" type="email" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;" />
+        </label>
+        <p id="guestRegisterError" style="color:#b00020;min-height:20px;margin:0 0 10px 0;"></p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button type="button" id="guestCancelBtn" class="secondary-btn">Cancel</button>
+          <button type="button" id="guestSubmitBtn" class="primary-btn">Submit</button>
+        </div>
+      `;
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      const nameInput = panel.querySelector("#guestRegisterName");
+      const emailInput = panel.querySelector("#guestRegisterEmail");
+      const errorEl = panel.querySelector("#guestRegisterError");
+      const cancelBtn = panel.querySelector("#guestCancelBtn");
+      const submitBtn = panel.querySelector("#guestSubmitBtn");
+
+      const cleanup = () => {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      };
+
+      cancelBtn.addEventListener("click", () => {
+        cleanup();
+        resolve(null);
+      });
+
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) {
+          cleanup();
+          resolve(null);
+        }
+      });
+
+      submitBtn.addEventListener("click", () => {
+        const guestName = cleanText(nameInput.value);
+        const guestEmail = cleanText(emailInput.value).toLowerCase();
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
+        if (!guestName) {
+          errorEl.textContent = "Please enter your name.";
+          return;
+        }
+        if (!isEmail) {
+          errorEl.textContent = "Please enter a valid email.";
+          return;
+        }
+        cleanup();
+        resolve({ guestName, guestEmail });
+      });
+    });
+
   const createBrowseCard = (gathering) => {
     const wrap = document.createElement("article");
     wrap.className = "elder-card-item";
@@ -249,17 +329,38 @@
 
     if (!registerBtn) return;
     registerBtn.addEventListener("click", async () => {
-      const userId = getCurrentUserId();
-      if (!userId) {
-        window.location.href = "/login";
-        return;
-      }
-
       registerBtn.disabled = true;
       registerBtn.textContent = "Registering...";
       try {
-        await window.api.post(`/gatherings/${gathering._id}/attendees`, {});
-        window.location.href = "/elder-confirmation";
+        const emailStatusMessage = (result) => {
+          const status = result?.registrationEmail;
+          if (!status) return "Registration completed.";
+          if (status.sent) return "Registration completed. Confirmation email sent.";
+          if (status.reason === "already_registered") return "You are already registered for this gathering.";
+          if (status.reason === "smtp_not_configured") return "Registration completed. Email not sent (SMTP not configured).";
+          if (status.reason === "send_failed") return "Registration completed, but email sending failed.";
+          return "Registration completed.";
+        };
+
+        if (isLoggedIn()) {
+          const result = await window.api.post(`/gatherings/${gathering._id}/attendees`, {});
+          window.alert(emailStatusMessage(result));
+          window.location.href = "/elder-my-gatherings";
+        } else {
+          if (!isFreeForAllType(gathering)) {
+            window.location.href = "/login";
+            return;
+          }
+          const guestPayload = await openGuestRegistrationModal(gathering.name);
+          if (!guestPayload) {
+            registerBtn.disabled = false;
+            registerBtn.textContent = "Register";
+            return;
+          }
+          const result = await window.api.post(`/gatherings/${gathering._id}/attendees`, guestPayload);
+          window.alert(emailStatusMessage(result));
+          window.location.href = "/elder-dashboard";
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Could not register.";
         registerBtn.disabled = false;

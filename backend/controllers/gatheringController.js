@@ -1,4 +1,6 @@
+const nodemailer = require("nodemailer");
 const Gathering = require("../models/Gathering");
+const User = require("../models/User");
 
 const MANAGER_ROLES = ["SocialM", "Admin"];
 
@@ -11,6 +13,78 @@ const normalizeStatus = (value) => {
 
 const canManageGatherings = (user) => MANAGER_ROLES.includes(user?.role);
 const isValidHttpUrl = (value) => /^https?:\/\/\S+$/i.test((value || "").trim());
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || "").trim());
+const SMTP_PORT = Number(process.env.SMTP_PORT) || 587;
+const hasMailConfig = () =>
+  Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+
+let mailTransporter = null;
+const getMailer = () => {
+  if (!hasMailConfig()) return null;
+  if (!mailTransporter) {
+    mailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+  return mailTransporter;
+};
+
+const sendRegistrationEmail = async ({ to, name, gathering, isGuest }) => {
+  const transporter = getMailer();
+  if (!transporter) {
+    console.log("[gathering-email] skipped: SMTP config missing");
+    return { attempted: false, sent: false, reason: "smtp_not_configured" };
+  }
+
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+  if (!from || !to) {
+    console.log("[gathering-email] skipped: sender/recipient missing", { hasFrom: Boolean(from), hasTo: Boolean(to) });
+    return { attempted: false, sent: false, reason: "missing_sender_or_recipient" };
+  }
+
+  const subject = `Registration Confirmed: ${gathering.name || "Gathering"}`;
+  const recipientName = name || "Participant";
+  const text = [
+    `Hi ${recipientName},`,
+    "",
+    `You are registered for: ${gathering.name || "-"}`,
+    `Date: ${gathering.date || "-"}`,
+    `Time: ${gathering.startTime || "--:--"} - ${gathering.endTime || "--:--"}`,
+    `Place: ${gathering.address || "-"}`,
+    `Map: ${gathering.location || "-"}`,
+    "",
+    isGuest ? "You registered as a guest attendee." : "You registered from your account.",
+  ].join("\n");
+
+  console.log("[gathering-email] sending", {
+    to,
+    gatheringId: gathering._id?.toString?.() || "",
+    isGuest,
+  });
+  try {
+    await transporter.sendMail({ from, to, subject, text });
+    console.log("[gathering-email] sent", {
+      to,
+      gatheringId: gathering._id?.toString?.() || "",
+      isGuest,
+    });
+    return { attempted: true, sent: true, reason: "sent" };
+  } catch (error) {
+    console.log("[gathering-email] failed", {
+      to,
+      gatheringId: gathering._id?.toString?.() || "",
+      isGuest,
+      error: error?.message || "unknown_error",
+    });
+    return { attempted: true, sent: false, reason: "send_failed", error: error?.message || "unknown_error" };
+  }
+};
 
 const isOwnerOrAdmin = (user, gathering) => {
   if (!user || !gathering) return false;
@@ -33,6 +107,7 @@ const normalizeGatheringForResponse = (gathering) => {
     startTime,
     endTime,
     address,
+    guestAttendees: Array.isArray(plain.guestAttendees) ? plain.guestAttendees : [],
   };
   delete normalized.time;
   return normalized;
@@ -104,6 +179,7 @@ const createGathering = async (req, res) => {
       ...payload,
       smId: ownerId,
       attendees: [],
+      guestAttendees: [],
     });
 
     const populated = await gathering.populate("smId", "name email role");
@@ -164,7 +240,10 @@ const getManagerSummary = async (req, res) => {
       active: gatherings.filter((g) => g.status === "active").length,
       draft: gatherings.filter((g) => g.status === "draft").length,
       cancelled: gatherings.filter((g) => g.status === "cancelled").length,
-      attendees: gatherings.reduce((sum, g) => sum + (g.attendees?.length || 0), 0),
+      attendees: gatherings.reduce(
+        (sum, g) => sum + (g.attendees?.length || 0) + (g.guestAttendees?.length || 0),
+        0
+      ),
       upcoming: gatherings
         .slice()
         .sort((a, b) => {
@@ -241,10 +320,15 @@ const updateGathering = async (req, res) => {
 
 const addAttendee = async (req, res) => {
   try {
-    const attendeeId = req.body.userId || req.user?.id;
-    if (!attendeeId) {
-      return res.status(400).json({ message: "userId is required" });
-    }
+    console.log("[gathering-attendees] register request", {
+      gatheringId: req.params.id,
+      isLoggedIn: Boolean(req.user?.id),
+      hasGuestPayload: Boolean(req.body?.guestName || req.body?.guestEmail),
+    });
+
+    const attendeeId = req.user?.id;
+    const guestName = (req.body?.guestName || "").trim();
+    const guestEmail = (req.body?.guestEmail || "").trim().toLowerCase();
 
     const gathering = await Gathering.findById(req.params.id);
     if (!gathering) {
@@ -255,21 +339,89 @@ const addAttendee = async (req, res) => {
       return res.status(400).json({ message: "Cannot join a cancelled gathering" });
     }
 
+    const guestCount = Array.isArray(gathering.guestAttendees) ? gathering.guestAttendees.length : 0;
     const maxAttendees = Number(gathering.maxAttendees || 0);
-    if (maxAttendees > 0 && gathering.attendees.length >= maxAttendees) {
+    const totalAttendees = gathering.attendees.length + guestCount;
+    if (maxAttendees > 0 && totalAttendees >= maxAttendees) {
       return res.status(400).json({ message: "This gathering is already full" });
     }
 
+    if (!attendeeId) {
+      let emailDelivery = { attempted: false, sent: false, reason: "not_registered" };
+      if (gathering.type !== "free_for_all") {
+        return res.status(403).json({ message: "Login is required for this gathering type" });
+      }
+      if (!guestName || !guestEmail) {
+        return res.status(400).json({ message: "guestName and guestEmail are required" });
+      }
+      if (!isValidEmail(guestEmail)) {
+        return res.status(400).json({ message: "guestEmail must be a valid email address" });
+      }
+
+      const alreadyJoinedAsGuest = (gathering.guestAttendees || []).some(
+        (guest) => (guest.email || "").toLowerCase() === guestEmail
+      );
+      if (!alreadyJoinedAsGuest) {
+        gathering.guestAttendees.push({
+          name: guestName,
+          email: guestEmail,
+          registeredAt: new Date(),
+        });
+        await gathering.save();
+        emailDelivery = await sendRegistrationEmail({
+          to: guestEmail,
+          name: guestName,
+          gathering,
+          isGuest: true,
+        });
+      } else {
+        emailDelivery = { attempted: false, sent: false, reason: "already_registered" };
+        console.log("[gathering-attendees] guest already registered", {
+          gatheringId: gathering._id?.toString?.() || "",
+          guestEmail,
+        });
+      }
+      const refreshed = await Gathering.findById(gathering._id).populate("attendees", "name email role");
+      const response = normalizeGatheringForResponse(refreshed);
+      response.registrationEmail = emailDelivery;
+      response.registration = { mode: "guest", alreadyRegistered: alreadyJoinedAsGuest };
+      return res.json(response);
+    }
+
+    let emailDelivery = { attempted: false, sent: false, reason: "not_registered" };
     const alreadyJoined = gathering.attendees.some(
       (id) => id.toString() === attendeeId.toString()
     );
     if (!alreadyJoined) {
       gathering.attendees.push(attendeeId);
       await gathering.save();
+      const attendeeUser = await User.findById(attendeeId).select("name email");
+      if (attendeeUser?.email) {
+        emailDelivery = await sendRegistrationEmail({
+          to: attendeeUser.email,
+          name: attendeeUser.name,
+          gathering,
+          isGuest: false,
+        });
+      } else {
+        emailDelivery = { attempted: false, sent: false, reason: "attendee_email_missing" };
+        console.log("[gathering-email] skipped: attendee email not found", {
+          attendeeId: attendeeId?.toString?.() || "",
+          gatheringId: gathering._id?.toString?.() || "",
+        });
+      }
+    } else {
+      emailDelivery = { attempted: false, sent: false, reason: "already_registered" };
+      console.log("[gathering-attendees] user already registered", {
+        gatheringId: gathering._id?.toString?.() || "",
+        attendeeId: attendeeId?.toString?.() || "",
+      });
     }
-
     const populated = await gathering.populate("attendees", "name email role");
-    res.json(normalizeGatheringForResponse(populated));
+    const response = normalizeGatheringForResponse(populated);
+    response.registrationEmail = emailDelivery;
+    response.registration = { mode: "user", alreadyRegistered };
+    res.json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -302,6 +454,7 @@ const getGatheringAttendees = async (req, res) => {
       location: gathering.location,
       address: gathering.address || gathering.location || "",
       attendees: gathering.attendees,
+      guestAttendees: Array.isArray(gathering.guestAttendees) ? gathering.guestAttendees : [],
       maxAttendees: gathering.maxAttendees,
       status: gathering.status,
     });

@@ -37,6 +37,10 @@
 
   const getAttendees = (gathering) =>
     Array.isArray(gathering?.attendees) ? gathering.attendees : [];
+  const getGuestAttendees = (gathering) =>
+    Array.isArray(gathering?.guestAttendees) ? gathering.guestAttendees : [];
+  const getTotalAttendeeCount = (gathering) =>
+    getAttendees(gathering).length + getGuestAttendees(gathering).length;
 
   const toDisplayDate = (date, startTime) => {
     if (!date) return "--";
@@ -181,7 +185,7 @@
       makeText(
         "p",
         "manager-gathering-count",
-        String(getAttendees(gathering).length),
+        String(getTotalAttendeeCount(gathering)),
       ),
     );
 
@@ -216,21 +220,26 @@
     content.appendChild(attendeesLabel);
 
     const attendees = getAttendees(gathering);
-    if (attendees.length === 0) {
+    const guests = getGuestAttendees(gathering);
+    const allAttendees = [
+      ...attendees.map((item) => ({ name: formatAttendeeName(item) })),
+      ...guests.map((item) => ({ name: `${item.name || "Guest"} (Guest)` })),
+    ];
+    if (allAttendees.length === 0) {
       content.appendChild(makeText("p", "help", "No attendees yet."));
     } else {
       const list = document.createElement("ul");
       list.className = "manager-attendee-list";
 
-      attendees.slice(0, 6).forEach((attendee) => {
+      allAttendees.slice(0, 6).forEach((attendee) => {
         const li = document.createElement("li");
-        li.textContent = formatAttendeeName(attendee);
+        li.textContent = attendee.name;
         list.appendChild(li);
       });
 
-      if (attendees.length > 6) {
+      if (allAttendees.length > 6) {
         const li = document.createElement("li");
-        li.textContent = `+${attendees.length - 6} more`;
+        li.textContent = `+${allAttendees.length - 6} more`;
         list.appendChild(li);
       }
 
@@ -292,7 +301,7 @@
       });
 
       const totalAttendees = ownGatherings.reduce(
-        (sum, gathering) => sum + getAttendees(gathering).length,
+        (sum, gathering) => sum + getTotalAttendeeCount(gathering),
         0,
       );
       setStatus(

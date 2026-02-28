@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticateUser } = require("../middleware/AuthMiddleware");
+const { authenticateUser, optionalAuthenticateUser } = require("../middleware/AuthMiddleware");
 const {
   createGathering,
   listGatherings,
@@ -21,7 +21,7 @@ router.get("/manager/summary", authenticateUser, getManagerSummary);
 router.get("/:id", getGatheringById);
 router.patch("/:id", authenticateUser, updateGathering);
 router.patch("/:id/cancel", authenticateUser, cancelGathering);
-router.post("/:id/attendees", authenticateUser, addAttendee);
+router.post("/:id/attendees", optionalAuthenticateUser, addAttendee);
 router.get("/:id/attendees", authenticateUser, getGatheringAttendees);
 
 module.exports = router;

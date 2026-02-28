@@ -45,6 +45,13 @@ const GatheringSchema = new mongoose.Schema(
     },
     smId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    guestAttendees: [
+      {
+        name: { type: String, required: true, trim: true },
+        email: { type: String, required: true, trim: true, lowercase: true },
+        registeredAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );
