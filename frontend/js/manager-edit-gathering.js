@@ -29,7 +29,7 @@
   const setForm = (data) => {
     fields.name.value = data.name || "";
     fields.date.value = data.date || "";
-    fields.startTime.value = data.startTime || data.time || "";
+    fields.startTime.value = data.startTime || "";
     fields.endTime.value = data.endTime || "";
     fields.location.value = data.location || "";
     fields.address.value = data.address || "";

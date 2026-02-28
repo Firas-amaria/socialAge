@@ -28,6 +28,7 @@
     const user = getStoredUser();
     return (user?._id || user?.id || "").toString();
   };
+  const isLoggedIn = () => Boolean(window.localStorage.getItem("token"));
 
   const getAttendees = (gathering) =>
     Array.isArray(gathering?.attendees) ? gathering.attendees : [];
@@ -40,6 +41,10 @@
 
   const isActiveGathering = (gathering) =>
     gathering?.status === "active" || !gathering?.status;
+  const isFreeForAllType = (gathering) => {
+    const type = cleanText(gathering?.type).toLowerCase().replace(/[\s-]+/g, "_");
+    return type === "free_for_all";
+  };
 
   const createActionLink = (href, text, className = "primary-btn") => {
     const link = document.createElement("a");
@@ -65,10 +70,7 @@
 
     let card = null;
     if (typeof window.createGatheringCard === "function") {
-      card = window.createGatheringCard({
-        ...gathering,
-        time: gathering.startTime || gathering.time || "",
-      });
+      card = window.createGatheringCard(gathering);
       wrap.appendChild(card);
     }
 
@@ -174,7 +176,7 @@
     if (title) title.textContent = gathering.name || "--";
     if (date) date.textContent = gathering.date || "--";
     if (time) {
-      time.textContent = `${gathering.startTime || gathering.time || "--:--"} - ${gathering.endTime || "--:--"}`;
+      time.textContent = `${gathering.startTime || "--:--"} - ${gathering.endTime || "--:--"}`;
     }
     if (location) location.textContent = gathering.location || "--";
     if (description) description.textContent = gathering.description || "No description provided.";
@@ -184,11 +186,14 @@
     if (!window.api || typeof window.api.get !== "function") return [];
     const data = await window.api.get("/gatherings");
     const items = Array.isArray(data) ? data : [];
-    return items
+    const filteredByAccess = isLoggedIn()
+      ? items
+      : items.filter(isFreeForAllType);
+    return filteredByAccess
       .filter(isActiveGathering)
       .sort((a, b) => {
-        const aValue = new Date(`${a.date || ""}T${a.startTime || a.time || "00:00"}`).getTime();
-        const bValue = new Date(`${b.date || ""}T${b.startTime || b.time || "00:00"}`).getTime();
+        const aValue = new Date(`${a.date || ""}T${a.startTime || "00:00"}`).getTime();
+        const bValue = new Date(`${b.date || ""}T${b.startTime || "00:00"}`).getTime();
         return (Number.isNaN(aValue) ? Number.MAX_SAFE_INTEGER : aValue) - (Number.isNaN(bValue) ? Number.MAX_SAFE_INTEGER : bValue);
       });
   };

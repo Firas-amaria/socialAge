@@ -10,7 +10,7 @@
   }
 
   const formatTimeRange = (item) => {
-    const start = item.startTime || item.time || "--:--";
+    const start = item.startTime || "--:--";
     const end = item.endTime || "";
     return end ? `${start} - ${end}` : start;
   };

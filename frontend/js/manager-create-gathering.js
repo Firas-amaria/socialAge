@@ -99,7 +99,6 @@
     return {
       name: getText(fields.name),
       date: getText(fields.date),
-      time: startTime,
       startTime,
       endTime,
       location: getText(fields.location),
@@ -119,10 +118,7 @@
     const payload = buildPayload();
     previewContainer.innerHTML = "";
     previewContainer.appendChild(
-      window.createGatheringCard({
-        ...payload,
-        time: payload.startTime,
-      })
+      window.createGatheringCard(payload)
     );
     if (previewDebug) {
       previewDebug.textContent = `Preview status: ${payload.name || "--"} | ${payload.date || "--"} | ${payload.startTime || "--:--"}-${payload.endTime || "--:--"} | ${payload.location || "--"}`;
@@ -189,10 +185,7 @@
     if (!modal || !confirmPreview || typeof window.createGatheringCard !== "function") return;
     confirmPreview.innerHTML = "";
     confirmPreview.appendChild(
-      window.createGatheringCard({
-        ...payload,
-        time: payload.startTime,
-      })
+      window.createGatheringCard(payload)
     );
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");

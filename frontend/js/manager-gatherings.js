@@ -38,11 +38,11 @@
   const getAttendees = (gathering) =>
     Array.isArray(gathering?.attendees) ? gathering.attendees : [];
 
-  const toDisplayDate = (date, time) => {
+  const toDisplayDate = (date, startTime) => {
     if (!date) return "--";
-    const source = `${date}T${time || "00:00"}`;
+    const source = `${date}T${startTime || "00:00"}`;
     const parsed = new Date(source);
-    if (Number.isNaN(parsed.getTime())) return `${date} ${time || ""}`.trim();
+    if (Number.isNaN(parsed.getTime())) return `${date} ${startTime || ""}`.trim();
     return parsed.toLocaleString([], {
       year: "numeric",
       month: "short",
@@ -53,7 +53,7 @@
   };
 
   const toSortValue = (gathering) => {
-    const source = `${gathering?.date || ""}T${gathering?.startTime || gathering?.time || "00:00"}`;
+    const source = `${gathering?.date || ""}T${gathering?.startTime || "00:00"}`;
     const parsed = new Date(source).getTime();
     return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
   };
@@ -157,7 +157,7 @@
         "When",
         toDisplayDate(
           gathering.date,
-          gathering.startTime || gathering.time,
+          gathering.startTime,
         ),
       ),
     );
@@ -198,7 +198,7 @@
     content.appendChild(
       makeMeta(
         "Time",
-        `${gathering.startTime || gathering.time || "--:--"} - ${gathering.endTime || "--:--"}`,
+        `${gathering.startTime || "--:--"} - ${gathering.endTime || "--:--"}`,
       ),
     );
     content.appendChild(makeMeta("Status", gathering.status || "--"));

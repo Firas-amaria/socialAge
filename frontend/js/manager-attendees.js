@@ -12,7 +12,7 @@
     try {
       const data = await window.api.get(`/gatherings/${gatheringId}/attendees`);
       const count = Array.isArray(data.attendees) ? data.attendees.length : 0;
-      metaEl.textContent = `${data.name} | ${data.date} ${data.startTime || ""} | ${count}/${data.maxAttendees || "--"} attendees`;
+      metaEl.textContent = `${data.name} | ${data.date} ${data.startTime || "--:--"}-${data.endTime || "--:--"} | ${count}/${data.maxAttendees || "--"} attendees`;
 
       if (!count) {
         listEl.innerHTML = `<p class="subtitle">No attendees registered yet.</p>`;

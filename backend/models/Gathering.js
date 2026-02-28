@@ -9,18 +9,15 @@ const GatheringSchema = new mongoose.Schema(
       trim: true,
       match: /^\d{4}-\d{2}-\d{2}$/,
     },
-    time: {
-      type: String,
-      trim: true,
-      match: /^\d{2}:\d{2}$/,
-    },
     startTime: {
       type: String,
+      required: true,
       trim: true,
       match: /^\d{2}:\d{2}$/,
     },
     endTime: {
       type: String,
+      required: true,
       trim: true,
       match: /^\d{2}:\d{2}$/,
     },

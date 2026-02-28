@@ -22,7 +22,6 @@ const buildPayload = (body = {}) => {
   const {
     name,
     date,
-    time,
     startTime,
     endTime,
     location,
@@ -39,8 +38,7 @@ const buildPayload = (body = {}) => {
   return {
     name,
     date,
-    time: time || startTime,
-    startTime: startTime || time,
+    startTime,
     endTime,
     location,
     address,
@@ -63,9 +61,9 @@ const createGathering = async (req, res) => {
     const ownerId = req.user?.id;
     const payload = buildPayload(req.body);
 
-    if (!payload.name || !payload.date || !payload.startTime || !payload.location || !ownerId) {
+    if (!payload.name || !payload.date || !payload.startTime || !payload.endTime || !payload.location || !ownerId) {
       return res.status(400).json({
-        message: "name, date, startTime, and location are required",
+        message: "name, date, startTime, endTime, and location are required",
       });
     }
 
@@ -89,7 +87,7 @@ const listGatherings = async (req, res) => {
     if (status) query.status = normalizeStatus(status);
 
     const gatherings = await Gathering.find(query)
-      .sort({ date: 1, startTime: 1, time: 1 })
+      .sort({ date: 1, startTime: 1, endTime: 1 })
       .populate("smId", "name email role")
       .populate("attendees", "name email");
     res.json(gatherings);
@@ -136,7 +134,7 @@ const getManagerSummary = async (req, res) => {
       attendees: gatherings.reduce((sum, g) => sum + (g.attendees?.length || 0), 0),
       upcoming: gatherings
         .slice()
-        .sort((a, b) => `${a.date} ${a.startTime || a.time}`.localeCompare(`${b.date} ${b.startTime || b.time}`))
+        .sort((a, b) => `${a.date} ${a.startTime}`.localeCompare(`${b.date} ${b.startTime}`))
         .slice(0, 5),
     };
 
@@ -256,8 +254,8 @@ const getGatheringAttendees = async (req, res) => {
       _id: gathering._id,
       name: gathering.name,
       date: gathering.date,
-      startTime: gathering.startTime || gathering.time,
-      endTime: gathering.endTime || "",
+      startTime: gathering.startTime,
+      endTime: gathering.endTime,
       location: gathering.location,
       attendees: gathering.attendees,
       maxAttendees: gathering.maxAttendees,

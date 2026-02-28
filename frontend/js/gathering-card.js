@@ -19,11 +19,12 @@ const normalizeColor = (value, fallback = "#d6dfe8") => {
   return fallback;
 };
 
-const formatDateTime = (date, time) => {
-  if (date && time) {
+const formatDateTime = (date, startTime, endTime) => {
+  if (date && startTime) {
     const [year, month, day] = date.split("-");
     date = `${day}/${month}/${year}`;
-    return `${date} at ${time}`;
+    if (endTime) return `${date} at ${startTime} - ${endTime}`;
+    return `${date} at ${startTime}`;
   }
   if (date) {
     return `${date} at --:--`;
@@ -45,7 +46,8 @@ const setText = (element, value, placeholder = "--") => {
 const createGatheringCard = (data = {}) => {
   const name = cleanText(data.name);
   const date = cleanText(data.date);
-  const time = cleanText(data.time);
+  const startTime = cleanText(data.startTime);
+  const endTime = cleanText(data.endTime);
   const location = cleanText(data.location);
   const iconId = cleanText(data.iconId);
   const cardColor = normalizeColor(data.cardColor);
@@ -95,7 +97,7 @@ const createGatheringCard = (data = {}) => {
   const whenLabel = document.createElement("span");
   whenLabel.textContent = "When";
   const whenValue = document.createElement("strong");
-  setText(whenValue, formatDateTime(date, time));
+  setText(whenValue, formatDateTime(date, startTime, endTime));
   when.appendChild(whenLabel);
   when.appendChild(whenValue);
 
