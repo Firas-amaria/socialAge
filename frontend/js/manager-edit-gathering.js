@@ -25,6 +25,7 @@
     type: document.getElementById("type"),
     status: document.getElementById("status"),
   };
+  const isValidUrl = (value) => /^https?:\/\/\S+$/i.test((value || "").trim());
 
   const setForm = (data) => {
     fields.name.value = data.name || "";
@@ -67,6 +68,14 @@
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!fields.address.value.trim()) {
+      statusEl.textContent = "Address (place name) is required.";
+      return;
+    }
+    if (!isValidUrl(fields.location.value)) {
+      statusEl.textContent = "Location must be a valid http(s) Google Maps link.";
+      return;
+    }
     statusEl.textContent = "Saving changes...";
     try {
       const payload = buildPayload();

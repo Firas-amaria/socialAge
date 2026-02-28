@@ -161,7 +161,8 @@
         ),
       ),
     );
-    content.appendChild(makeMeta("Where", gathering.location || "--"));
+    content.appendChild(makeMeta("Where", gathering.address || "--"));
+    content.appendChild(makeMeta("Map Link", gathering.location || "--"));
     content.appendChild(makeMeta("Type", formatType(gathering.type)));
     content.appendChild(
       makeText(

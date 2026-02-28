@@ -48,7 +48,7 @@ const createGatheringCard = (data = {}) => {
   const date = cleanText(data.date);
   const startTime = cleanText(data.startTime);
   const endTime = cleanText(data.endTime);
-  const location = cleanText(data.location);
+  const location = cleanText(data.address) || cleanText(data.location);
   const iconId = cleanText(data.iconId);
   const cardColor = normalizeColor(data.cardColor);
 

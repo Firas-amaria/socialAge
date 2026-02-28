@@ -52,10 +52,23 @@
                 </div>
 
                 <div class="field">
-                  <label for="gatheringLocation">Location</label>
-                  <input id="gatheringLocation" name="location" type="text" placeholder="Community Hall, Room 2"
+                  <label for="gatheringAddress">Address (Place Name)</label>
+                  <input id="gatheringAddress" name="address" type="text" placeholder="Community Hall, Room 2"
+                    required>
+                  <p class="error" id="gatheringAddressError" aria-live="polite"></p>
+                </div>
+
+                <div class="field">
+                  <label for="gatheringLocation">Location Link (Google Maps)</label>
+                  <input id="gatheringLocation" name="location" type="url" placeholder="https://maps.google.com/?q=..."
                     required>
                   <p class="error" id="gatheringLocationError" aria-live="polite"></p>
+                </div>
+
+                <div class="field">
+                  <label for="maxAttendees">Max Attendees</label>
+                  <input id="maxAttendees" name="maxAttendees" type="number" min="1" value="30" required>
+                  <p class="error" id="maxAttendeesError" aria-live="polite"></p>
                 </div>
 
                 <div class="field">
@@ -64,6 +77,10 @@
                     placeholder="Add a short overview of the gathering." required></textarea>
                   <p class="error" id="descriptionError" aria-live="polite"></p>
                 </div>
+              </section>
+
+              <section class="form-panel" aria-labelledby="looksSectionTitle">
+                <h2 id="looksSectionTitle" class="section-title section-title--form">Looks</h2>
 
                 <div class="field">
                   <label for="type">Type</label>
@@ -74,10 +91,6 @@
                   <p class="help">Signup required hides details for logged-out users.</p>
                   <p class="error" id="typeError" aria-live="polite"></p>
                 </div>
-              </section>
-
-              <section class="form-panel" aria-labelledby="looksSectionTitle">
-                <h2 id="looksSectionTitle" class="section-title section-title--form">Looks</h2>
 
                 <div class="field">
                   <fieldset class="option-field">

@@ -25,6 +25,7 @@
     gatheringDate: document.getElementById("gatheringDateError"),
     gatheringTime: document.getElementById("gatheringTimeError"),
     gatheringEndTime: document.getElementById("gatheringEndTimeError"),
+    gatheringAddress: document.getElementById("gatheringAddressError"),
     gatheringLocation: document.getElementById("gatheringLocationError"),
     maxAttendees: document.getElementById("maxAttendeesError"),
     iconId: document.getElementById("iconIdError"),
@@ -56,6 +57,7 @@
   const isValidDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value);
   const isValidTime = (value) => /^\d{2}:\d{2}$/.test(value);
   const isValidHex = (value) => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value);
+  const isValidUrl = (value) => /^https?:\/\/\S+$/i.test(value);
 
   const normalizeColor = (value) => (isValidHex(value) ? value : "#d6dfe8");
 
@@ -121,7 +123,7 @@
       window.createGatheringCard(payload)
     );
     if (previewDebug) {
-      previewDebug.textContent = `Preview status: ${payload.name || "--"} | ${payload.date || "--"} | ${payload.startTime || "--:--"}-${payload.endTime || "--:--"} | ${payload.location || "--"}`;
+      previewDebug.textContent = `Preview status: ${payload.name || "--"} | ${payload.date || "--"} | ${payload.startTime || "--:--"}-${payload.endTime || "--:--"} | ${payload.address || "--"}`;
     }
   };
 
@@ -150,8 +152,15 @@
       setError("gatheringEndTime", "End time must be after start time.");
       valid = false;
     }
+    if (!payload.address) {
+      setError("gatheringAddress", "Address (place name) is required.");
+      valid = false;
+    }
     if (!payload.location) {
-      setError("gatheringLocation", "Location is required.");
+      setError("gatheringLocation", "Location link is required.");
+      valid = false;
+    } else if (!isValidUrl(payload.location)) {
+      setError("gatheringLocation", "Enter a valid http(s) Google Maps link.");
       valid = false;
     }
     if (hasField(fields.maxAttendees) && (!payload.maxAttendees || payload.maxAttendees < 1)) {

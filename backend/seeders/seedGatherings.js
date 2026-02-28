@@ -21,6 +21,8 @@ const addDays = (daysAhead) => {
   date.setDate(date.getDate() + daysAhead);
   return formatDate(date);
 };
+const makeMapLink = (label) =>
+  `https://maps.google.com/?q=${encodeURIComponent(label)}`;
 
 const buildGatherings = (smId) => [
   {
@@ -231,7 +233,11 @@ const buildGatherings = (smId) => [
     type: "signup_required",
     smId,
   },
-];
+].map((item) => ({
+  ...item,
+  address: item.location,
+  location: makeMapLink(item.location),
+}));
 
 const upsertGathering = async (gatheringData) => {
   const filter = {
@@ -253,6 +259,7 @@ const upsertGathering = async (gatheringData) => {
   existing.startTime = gatheringData.startTime;
   existing.endTime = gatheringData.endTime;
   existing.location = gatheringData.location;
+  existing.address = gatheringData.address;
   existing.iconId = gatheringData.iconId;
   existing.cardColor = gatheringData.cardColor;
   existing.description = gatheringData.description;

@@ -10,12 +10,32 @@ const normalizeStatus = (value) => {
 };
 
 const canManageGatherings = (user) => MANAGER_ROLES.includes(user?.role);
+const isValidHttpUrl = (value) => /^https?:\/\/\S+$/i.test((value || "").trim());
 
 const isOwnerOrAdmin = (user, gathering) => {
   if (!user || !gathering) return false;
   if (user.role === "Admin") return true;
   const ownerId = gathering.smId?._id || gathering.smId;
   return ownerId?.toString() === user.id?.toString();
+};
+
+const normalizeGatheringForResponse = (gathering) => {
+  if (!gathering) return gathering;
+  const plain =
+    typeof gathering.toObject === "function"
+      ? gathering.toObject()
+      : gathering;
+  const startTime = plain.startTime || plain.time || "";
+  const endTime = plain.endTime || plain.time || "";
+  const address = plain.address || plain.location || "";
+  const normalized = {
+    ...plain,
+    startTime,
+    endTime,
+    address,
+  };
+  delete normalized.time;
+  return normalized;
 };
 
 const buildPayload = (body = {}) => {
@@ -61,9 +81,22 @@ const createGathering = async (req, res) => {
     const ownerId = req.user?.id;
     const payload = buildPayload(req.body);
 
-    if (!payload.name || !payload.date || !payload.startTime || !payload.endTime || !payload.location || !ownerId) {
+    if (
+      !payload.name ||
+      !payload.date ||
+      !payload.startTime ||
+      !payload.endTime ||
+      !payload.address ||
+      !payload.location ||
+      !ownerId
+    ) {
       return res.status(400).json({
-        message: "name, date, startTime, endTime, and location are required",
+        message: "name, date, startTime, endTime, address, and location are required",
+      });
+    }
+    if (!isValidHttpUrl(payload.location)) {
+      return res.status(400).json({
+        message: "location must be a valid http(s) URL",
       });
     }
 
@@ -74,7 +107,7 @@ const createGathering = async (req, res) => {
     });
 
     const populated = await gathering.populate("smId", "name email role");
-    res.status(201).json(populated);
+    res.status(201).json(normalizeGatheringForResponse(populated));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -90,7 +123,7 @@ const listGatherings = async (req, res) => {
       .sort({ date: 1, startTime: 1, endTime: 1 })
       .populate("smId", "name email role")
       .populate("attendees", "name email");
-    res.json(gatherings);
+    res.json(gatherings.map(normalizeGatheringForResponse));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -111,7 +144,7 @@ const listMyGatherings = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("attendees", "name email role");
 
-    res.json(gatherings);
+    res.json(gatherings.map(normalizeGatheringForResponse));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -134,7 +167,12 @@ const getManagerSummary = async (req, res) => {
       attendees: gatherings.reduce((sum, g) => sum + (g.attendees?.length || 0), 0),
       upcoming: gatherings
         .slice()
-        .sort((a, b) => `${a.date} ${a.startTime}`.localeCompare(`${b.date} ${b.startTime}`))
+        .sort((a, b) => {
+          const aStart = a.startTime || a.time || "";
+          const bStart = b.startTime || b.time || "";
+          return `${a.date} ${aStart}`.localeCompare(`${b.date} ${bStart}`);
+        })
+        .map(normalizeGatheringForResponse)
         .slice(0, 5),
     };
 
@@ -154,7 +192,7 @@ const getGatheringById = async (req, res) => {
       return res.status(404).json({ message: "Gathering not found" });
     }
 
-    res.json(gathering);
+    res.json(normalizeGatheringForResponse(gathering));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -176,6 +214,11 @@ const updateGathering = async (req, res) => {
     }
 
     const updates = buildPayload(req.body);
+    if (updates.location && !isValidHttpUrl(updates.location)) {
+      return res.status(400).json({
+        message: "location must be a valid http(s) URL",
+      });
+    }
     Object.keys(updates).forEach((key) => {
       if (updates[key] === undefined || updates[key] === null || updates[key] === "") {
         delete updates[key];
@@ -190,7 +233,7 @@ const updateGathering = async (req, res) => {
       return res.status(404).json({ message: "Gathering not found" });
     }
 
-    res.json(gathering);
+    res.json(normalizeGatheringForResponse(gathering));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -226,7 +269,7 @@ const addAttendee = async (req, res) => {
     }
 
     const populated = await gathering.populate("attendees", "name email role");
-    res.json(populated);
+    res.json(normalizeGatheringForResponse(populated));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -254,9 +297,10 @@ const getGatheringAttendees = async (req, res) => {
       _id: gathering._id,
       name: gathering.name,
       date: gathering.date,
-      startTime: gathering.startTime,
-      endTime: gathering.endTime,
+      startTime: gathering.startTime || gathering.time || "",
+      endTime: gathering.endTime || gathering.time || "",
       location: gathering.location,
+      address: gathering.address || gathering.location || "",
       attendees: gathering.attendees,
       maxAttendees: gathering.maxAttendees,
       status: gathering.status,
@@ -284,7 +328,7 @@ const cancelGathering = async (req, res) => {
     gathering.status = "cancelled";
     await gathering.save();
 
-    res.json({ message: "Gathering cancelled", gathering });
+    res.json({ message: "Gathering cancelled", gathering: normalizeGatheringForResponse(gathering) });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

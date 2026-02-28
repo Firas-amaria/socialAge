@@ -178,7 +178,7 @@
     if (time) {
       time.textContent = `${gathering.startTime || "--:--"} - ${gathering.endTime || "--:--"}`;
     }
-    if (location) location.textContent = gathering.location || "--";
+    if (location) location.textContent = gathering.address || gathering.location || "--";
     if (description) description.textContent = gathering.description || "No description provided.";
   };
 

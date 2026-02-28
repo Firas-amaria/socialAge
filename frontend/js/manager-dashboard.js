@@ -51,7 +51,7 @@
         <article class="list-card">
           <div>
             <h3>${item.name}</h3>
-            <p class="subtitle">${item.date} | ${formatTimeRange(item)} | ${item.location}</p>
+            <p class="subtitle">${item.date} | ${formatTimeRange(item)} | ${item.address || "--"}</p>
           </div>
           <a class="secondary-btn button-link" href="/manager-edit-gathering?id=${item._id}">Edit</a>
         </article>
