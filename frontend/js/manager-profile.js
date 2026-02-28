@@ -1,17 +1,16 @@
 (() => {
-  if (!window.managerAuth?.requireLogin()) return;
+  if (!window.managerAuth?.requireManager()) return;
 
   const info = document.getElementById("profileInfo");
-  const form = document.getElementById("profileForm");
-  const profileName = document.getElementById("profileName");
-  const currentPassword = document.getElementById("currentPassword");
-  const newPassword = document.getElementById("newPassword");
-  const profileStatus = document.getElementById("profileStatus");
   const applicationSnapshot = document.getElementById("applicationSnapshot");
+  if (!info || !applicationSnapshot) return;
 
-  if (!info || !form || !profileName || !currentPassword || !newPassword || !profileStatus || !applicationSnapshot) {
-    return;
-  }
+  const formatDateTime = (value) => {
+    if (!value) return "--";
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return "--";
+    return parsed.toLocaleString();
+  };
 
   const setUserView = (user) => {
     info.innerHTML = `
@@ -30,7 +29,6 @@
         </div>
       </div>
     `;
-    profileName.value = user.name || "";
   };
 
   const loadUser = async () => {
@@ -44,44 +42,34 @@
       const app = await window.api.get("/sm-applications/me/latest");
       const status = app.status === "denied" ? "rejected" : app.status;
       const badgeType = status === "approved" ? "approved" : status === "rejected" ? "rejected" : "pending";
+      const appliedAt = app.createdAt;
+      const acceptedAt =
+        app.approvedAt || (status === "approved" ? app.updatedAt : null);
+
       applicationSnapshot.innerHTML = `
         <p><span class="badge badge--${badgeType}">${status}</span></p>
-        <p class="subtitle"><strong>Full Name:</strong> ${app.fullName || "-"}</p>
-        <p class="subtitle"><strong>References:</strong> ${app.references || "-"}</p>
-        <p class="subtitle"><strong>Admin Notes:</strong> ${app.adminNotes || "No notes yet."}</p>
+        <div class="info-grid" style="margin-top: 10px;">
+          <div class="info-row">
+            <p class="info-label">Applied On</p>
+            <p class="info-value">${formatDateTime(appliedAt)}</p>
+          </div>
+          <div class="info-row">
+            <p class="info-label">Accepted On</p>
+            <p class="info-value">${status === "approved" ? formatDateTime(acceptedAt) : "--"}</p>
+          </div>
+          <div class="info-row">
+            <p class="info-label">Admin Notes</p>
+            <p class="info-value">${app.adminNotes || "No notes yet."}</p>
+          </div>
+        </div>
       `;
     } catch (_error) {
       applicationSnapshot.innerHTML = `<p class="subtitle">No manager application found.</p>`;
     }
   };
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    profileStatus.textContent = "Saving profile...";
-    try {
-      const payload = {
-        name: profileName.value.trim(),
-      };
-      if (newPassword.value) {
-        payload.currentPassword = currentPassword.value;
-        payload.newPassword = newPassword.value;
-      }
-
-      const result = await window.api.patch("/users/me", payload);
-      if (result?.user) {
-        window.localStorage.setItem("user", JSON.stringify(result.user));
-      }
-      currentPassword.value = "";
-      newPassword.value = "";
-      profileStatus.textContent = "Profile saved successfully.";
-      await loadUser();
-    } catch (error) {
-      profileStatus.textContent = `Could not save profile: ${error.message}`;
-    }
-  });
-
   loadUser().catch((error) => {
-    profileStatus.textContent = `Could not load profile: ${error.message}`;
+    info.innerHTML = `<p class="subtitle">Could not load profile: ${error.message}</p>`;
   });
   loadApplicationSnapshot();
 })();

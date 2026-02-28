@@ -173,16 +173,25 @@ const updateApplicationStatus = async (req, res) => {
       return res.status(400).json({ message: `Status must be one of: ${ALLOWED_STATUSES.join(", ")}` });
     }
 
-    const updates = { status: normalizedStatus };
-    if (typeof adminNotes === "string") {
-      updates.adminNotes = adminNotes.trim();
-    }
-
-    const updated = await SMApplication.findByIdAndUpdate(req.params.id, updates, { new: true });
+    const updated = await SMApplication.findById(req.params.id);
 
     if (!updated) {
       return res.status(404).json({ message: "Application not found" });
     }
+    const previousStatus = updated.status;
+
+    updated.status = normalizedStatus;
+    if (typeof adminNotes === "string") {
+      updated.adminNotes = adminNotes.trim();
+    }
+    if (normalizedStatus === "approved" && previousStatus !== "approved") {
+      updated.approvedAt = new Date();
+    }
+    if (normalizedStatus !== "approved" && previousStatus === "approved") {
+      updated.approvedAt = null;
+    }
+
+    await updated.save();
 
     if (normalizedStatus === "approved" && updated.userId) {
       await User.findByIdAndUpdate(updated.userId, { role: "SocialM" });

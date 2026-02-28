@@ -8,6 +8,7 @@ const SMApplicationSchema = new mongoose.Schema(
     fullName: { type: String, required: true, trim: true },
     references: { type: String, default: "", trim: true },
     adminNotes: { type: String, default: "", trim: true },
+    approvedAt: { type: Date, default: null },
     employmentProof: {
       filename: { type: String, default: "" },
       mimetype: { type: String, default: "" },

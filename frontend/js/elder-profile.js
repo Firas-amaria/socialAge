@@ -26,10 +26,6 @@
           <p class="info-label">Role</p>
           <p class="info-value">${user.role || "Unknown"}</p>
         </div>
-        <div class="info-row">
-          <p class="info-label">User Id</p>
-          <p class="info-value">${user._id || user.id || "Unknown"}</p>
-        </div>
       </div>
       <div class="button-grid" style="margin-top: 16px;">
         <a class="primary-btn button-link" href="/manager-application">Become a Social Manager</a>
