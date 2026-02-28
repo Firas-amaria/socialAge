@@ -3,9 +3,8 @@
   if (!sidebar) return;
 
   const links = [
-    { href: "/manager-dashboard", label: "Manager Dashboard" },
-    { href: "/manager-create-gathering", label: "Create New Gathering" },
     { href: "/manager-gatherings", label: "Manage My Gatherings" },
+    { href: "/manager-create-gathering", label: "Create New Gathering" },
   ];
 
   const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";

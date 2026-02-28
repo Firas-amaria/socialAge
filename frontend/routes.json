@@ -2,7 +2,7 @@
   "/": "pages/index.html",
   "/manager-application": "pages/manager-application.html",
   "/manager-application-status": "pages/manager-application-status.html",
-  "/manager-dashboard": "pages/manager-dashboard.html",
+  "/manager-dashboard": "pages/manager-gatherings.html",
   "/manager-gatherings": "pages/manager-gatherings.html",
   "/manager-create-gathering": "pages/manager-create-gathering.html",
   "/manager-edit-gathering": "pages/manager-edit-gathering.html",

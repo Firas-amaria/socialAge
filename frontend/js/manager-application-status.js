@@ -51,7 +51,7 @@
       } else if (!window.managerAuth.isManagerRole(user?.role)) {
         actions.innerHTML = `<a class="secondary-btn button-link" href="/manager-application">Update Application</a>`;
       } else {
-        actions.innerHTML = `<a class="primary-btn button-link" href="/manager-dashboard">Go to Manager Dashboard</a>`;
+        actions.innerHTML = `<a class="primary-btn button-link" href="/manager-gatherings">Go to My Gatherings</a>`;
       }
     } catch (_error) {
       container.innerHTML = `

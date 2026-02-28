@@ -49,7 +49,7 @@
       return;
     }
     if (role === "SocialM") {
-      window.location.href = "/manager-dashboard";
+      window.location.href = "/manager-gatherings";
       return;
     }
     window.location.href = "/";

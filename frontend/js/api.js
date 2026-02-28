@@ -36,6 +36,8 @@
     baseUrl,
     isDemo: false,
     get: (path, opts) => request(path, { ...opts, method: "GET" }),
+    getGatheringById: (id, opts) =>
+      request(`/gatherings/${encodeURIComponent(id)}`, { ...opts, method: "GET" }),
     post: (path, body, opts) => request(path, { ...opts, method: "POST", body }),
     put: (path, body, opts) => request(path, { ...opts, method: "PUT", body }),
     patch: (path, body, opts) => request(path, { ...opts, method: "PATCH", body }),

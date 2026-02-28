@@ -13,6 +13,7 @@
   const browseContainer = document.getElementById("browseContainer");
   const myGatheringsList = document.getElementById("myGatheringsList");
   const registerBtn = document.getElementById("registerBtn");
+  const DETAIL_ID_STORAGE_KEY = "elderSelectedGatheringId";
 
   const getStoredUser = () => {
     const raw = window.localStorage.getItem("user");
@@ -76,9 +77,13 @@
 
     const actions = document.createElement("div");
     actions.className = "gathering-card__actions";
-    actions.appendChild(
-      createActionLink(`/elder-gathering?id=${encodeURIComponent(gathering._id)}`, "View", "ghost-btn gathering-card__btn"),
-    );
+    const viewLink = createActionLink("/elder-gathering", "View", "ghost-btn gathering-card__btn");
+    viewLink.addEventListener("click", () => {
+      if (gathering?._id) {
+        window.sessionStorage.setItem(DETAIL_ID_STORAGE_KEY, gathering._id);
+      }
+    });
+    actions.appendChild(viewLink);
     if (card) {
       card.appendChild(actions);
     } else {
@@ -198,22 +203,43 @@
       });
   };
 
-  const loadDetails = async (gatherings) => {
+  const getDetailGatheringId = () => {
     const params = new URLSearchParams(window.location.search);
-    const gatheringId = params.get("id");
-    if (!gatheringId) return;
-
-    let gathering = gatherings.find((item) => item._id === gatheringId);
-    if (!gathering && window.api?.get) {
-      try {
-        gathering = await window.api.get(`/gatherings/${gatheringId}`);
-      } catch (_error) {
-        gathering = null;
+    const idFromQuery = params.get("id");
+    if (idFromQuery) {
+      window.sessionStorage.setItem(DETAIL_ID_STORAGE_KEY, idFromQuery);
+      if (window.location.pathname === "/elder-gathering") {
+        window.history.replaceState(null, "", "/elder-gathering");
       }
+      return idFromQuery;
+    }
+    return window.sessionStorage.getItem(DETAIL_ID_STORAGE_KEY) || "";
+  };
+
+  const loadDetails = async () => {
+    const title = document.getElementById("eventTitle");
+    const isDetailsPage = Boolean(title);
+    const gatheringId = getDetailGatheringId();
+    if (!gatheringId || !window.api) {
+      if (isDetailsPage) {
+        if (title) title.textContent = "Gathering not found";
+        if (registerBtn) registerBtn.disabled = true;
+      }
+      return;
+    }
+
+    let gathering = null;
+    try {
+      if (typeof window.api.getGatheringById === "function") {
+        gathering = await window.api.getGatheringById(gatheringId);
+      } else if (typeof window.api.get === "function") {
+        gathering = await window.api.get(`/gatherings/${gatheringId}`);
+      }
+    } catch (_error) {
+      gathering = null;
     }
 
     if (!gathering) {
-      const title = document.getElementById("eventTitle");
       if (title) title.textContent = "Gathering not found";
       if (registerBtn) registerBtn.disabled = true;
       return;
@@ -244,10 +270,13 @@
 
   const init = async () => {
     try {
-      const gatherings = await loadGatherings();
-      renderBrowse(gatherings);
-      renderMyGatherings(gatherings);
-      await loadDetails(gatherings);
+      const shouldLoadLists = Boolean(browseContainer || myGatheringsList);
+      if (shouldLoadLists) {
+        const gatherings = await loadGatherings();
+        renderBrowse(gatherings);
+        renderMyGatherings(gatherings);
+      }
+      await loadDetails();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not load gatherings.";
       if (browseContainer) browseContainer.innerHTML = `<p class="subtitle">${message}</p>`;
