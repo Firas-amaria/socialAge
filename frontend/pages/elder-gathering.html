@@ -13,17 +13,26 @@
 
 
 <div class="container">
-  <div class="card">
+  <div id="eventCard" class="card event-detail-card">
 
-    <div class="image-wrapper">
-      <img id="eventImage" class="event-img" alt="Event image">
+    <div id="eventTop" class="event-top">
+      <div class="event-top__head">
+        <div id="eventIcon" class="event-top__icon" aria-hidden="true">?</div>
+        <h2 id="eventTitle" class="event-top__title"></h2>
+      </div>
     </div>
 
-    <h2 id="eventTitle"></h2>
-    <p><strong>Date:</strong> <span id="eventDate"></span></p>
-    <p><strong>Time:</strong> <span id="eventTime"></span></p>
-    <p><strong>Location:</strong> <span id="eventLocation"></span></p>
-    <p id="eventDescription"></p>
+    <div class="event-details-list">
+      <div class="event-details-row event-details-row--split">
+        <p class="event-details-cell"><strong>Date:</strong> <span id="eventDate"></span></p>
+        <p class="event-details-cell"><strong>Time:</strong> <span id="eventTime"></span></p>
+      </div>
+      <p class="event-details-row"><strong>Location:</strong> <span id="eventLocation"></span></p>
+      <div class="event-description-box">
+        <span class="event-description-box__label">Description</span>
+        <p id="eventDescription" class="event-description-box__content"></p>
+      </div>
+    </div>
 
     <button id="registerBtn" class="btn btn-primary">Register</button>
 

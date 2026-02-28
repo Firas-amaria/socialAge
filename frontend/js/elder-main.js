@@ -1,4 +1,15 @@
 (() => {
+  const DETAIL_ICON_MAP = {
+    games: "\uD83C\uDFB2",
+    food: "\uD83C\uDF7D",
+    coffee: "\u2615",
+    art: "\uD83C\uDFA8",
+    music: "\uD83C\uDFB5",
+    outdoor: "\uD83C\uDF33",
+    book: "\uD83D\uDCDA",
+    fitness: "\uD83E\uDDD8",
+  };
+
   const browseContainer = document.getElementById("browseContainer");
   const myGatheringsList = document.getElementById("myGatheringsList");
   const registerBtn = document.getElementById("registerBtn");
@@ -38,25 +49,39 @@
     return link;
   };
 
+  const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
+
+  const normalizeColor = (value, fallback = "#d6dfe8") => {
+    const text = cleanText(value);
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(text)) {
+      return text;
+    }
+    return fallback;
+  };
+
   const createBrowseCard = (gathering) => {
     const wrap = document.createElement("article");
     wrap.className = "elder-card-item";
 
+    let card = null;
     if (typeof window.createGatheringCard === "function") {
-      wrap.appendChild(
-        window.createGatheringCard({
-          ...gathering,
-          time: gathering.startTime || gathering.time || "",
-        }),
-      );
+      card = window.createGatheringCard({
+        ...gathering,
+        time: gathering.startTime || gathering.time || "",
+      });
+      wrap.appendChild(card);
     }
 
     const actions = document.createElement("div");
     actions.className = "gathering-card__actions";
     actions.appendChild(
-      createActionLink(`/elder-gathering?id=${encodeURIComponent(gathering._id)}`, "View Details"),
+      createActionLink(`/elder-gathering?id=${encodeURIComponent(gathering._id)}`, "View", "ghost-btn gathering-card__btn"),
     );
-    wrap.appendChild(actions);
+    if (card) {
+      card.appendChild(actions);
+    } else {
+      wrap.appendChild(actions);
+    }
 
     return wrap;
   };
@@ -117,16 +142,34 @@
   };
 
   const populateDetails = (gathering) => {
-    const image = document.getElementById("eventImage");
+    const card = document.getElementById("eventCard");
+    const top = document.getElementById("eventTop");
+    const icon = document.getElementById("eventIcon");
     const title = document.getElementById("eventTitle");
     const date = document.getElementById("eventDate");
     const time = document.getElementById("eventTime");
     const location = document.getElementById("eventLocation");
     const description = document.getElementById("eventDescription");
 
-    if (image) {
-      image.src = "/images/elder/banner.jpg";
-      image.alt = gathering.name || "Gathering";
+    const cardColor = normalizeColor(gathering.cardColor);
+    const iconId = cleanText(gathering.iconId);
+    const iconText = DETAIL_ICON_MAP[iconId] || "?";
+
+    if (card) {
+      card.style.setProperty("--event-accent", cardColor);
+    }
+    if (top) {
+      top.style.background = "";
+      top.style.borderColor = "";
+    }
+    if (icon) {
+      icon.textContent = iconText;
+      icon.style.color = cardColor;
+      icon.style.background = `${cardColor}22`;
+    }
+    if (registerBtn) {
+      registerBtn.style.background = cardColor;
+      registerBtn.style.borderColor = cardColor;
     }
     if (title) title.textContent = gathering.name || "--";
     if (date) date.textContent = gathering.date || "--";

@@ -31,14 +31,6 @@ const formatDateTime = (date, time) => {
   return "";
 };
 
-const labelFor = (value) => {
-  if (!value) return "";
-  return value
-    .toString()
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-};
-
 const setText = (element, value, placeholder = "--") => {
   if (!element) return;
   if (value) {
@@ -52,12 +44,10 @@ const setText = (element, value, placeholder = "--") => {
 
 const createGatheringCard = (data = {}) => {
   const name = cleanText(data.name);
-  const description = cleanText(data.description);
   const date = cleanText(data.date);
   const time = cleanText(data.time);
   const location = cleanText(data.location);
   const iconId = cleanText(data.iconId);
-  const type = cleanText(data.type);
   const cardColor = normalizeColor(data.cardColor);
 
   const icon = ICON_MAP[iconId] || "?";
@@ -88,20 +78,7 @@ const createGatheringCard = (data = {}) => {
   const title = document.createElement("h3");
   setText(title, name);
 
-  const typePill = document.createElement("span");
-  typePill.className = "gathering-card__type";
-  const typeLabel = labelFor(type);
-  if (typeLabel) {
-    typePill.textContent = typeLabel;
-    typePill.style.background = cardColor;
-    typePill.style.color = "#ffffff";
-  } else {
-    typePill.textContent = "--";
-    typePill.classList.add("is-placeholder");
-  }
-
   titleWrap.appendChild(title);
-  titleWrap.appendChild(typePill);
 
   header.appendChild(iconWrap);
   header.appendChild(divider);
@@ -109,10 +86,6 @@ const createGatheringCard = (data = {}) => {
 
   const body = document.createElement("div");
   body.className = "gathering-card__body";
-
-  const desc = document.createElement("p");
-  desc.className = "gathering-card__description";
-  setText(desc, description);
 
   const meta = document.createElement("div");
   meta.className = "gathering-card__meta";
@@ -135,23 +108,8 @@ const createGatheringCard = (data = {}) => {
   where.appendChild(whereLabel);
   where.appendChild(whereValue);
 
-  const settings = document.createElement("div");
-  settings.className = "gathering-card__meta-row";
-  const settingsLabel = document.createElement("span");
-  settingsLabel.textContent = "Settings";
-  const settingsValue = document.createElement("strong");
-  const settingsText = [labelFor(iconId), labelFor(type)]
-    .filter(Boolean)
-    .join(" | ");
-  setText(settingsValue, settingsText);
-  settings.appendChild(settingsLabel);
-  settings.appendChild(settingsValue);
-
   meta.appendChild(when);
   meta.appendChild(where);
-  meta.appendChild(settings);
-
-  body.appendChild(desc);
   body.appendChild(meta);
 
   wrapper.appendChild(header);
