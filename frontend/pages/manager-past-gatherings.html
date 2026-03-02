@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manager Gatherings</title>
+  <title>Manager Past Gatherings</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 
@@ -15,26 +15,14 @@
     <main class="manager-content">
       <section class="card manager-page card--wide" aria-labelledby="page-title">
         <header class="card-header">
-          <h1 id="page-title">My Gatherings</h1>
+          <h1 id="page-title">Past Gatherings</h1>
         </header>
 
         <p id="gatheringsStatus" class="status" role="status" aria-live="polite">Loading gatherings...</p>
-        <section class="manager-gathering-section" aria-labelledby="current-title">
-          <div class="manager-gathering-section__head">
-            <h2 id="current-title">Current Gatherings</h2>
-          </div>
-          <div id="managerCurrentGatheringsList" class="manager-gatherings-list" aria-live="polite"></div>
-        </section>
-
-        <section class="manager-gathering-section" aria-labelledby="upcoming-title">
-          <div class="manager-gathering-section__head">
-            <h2 id="upcoming-title">Upcoming Gatherings</h2>
-          </div>
-          <div id="managerUpcomingGatheringsList" class="manager-gatherings-list" aria-live="polite"></div>
-        </section>
+        <div id="managerPastGatheringsList" class="manager-gatherings-list" aria-live="polite"></div>
 
         <div class="button-grid">
-          <a class="secondary-btn button-link" href="/manager-past-gatherings">View Past Gatherings</a>
+          <a class="secondary-btn button-link" href="/manager-gatherings">Back to Manage Gatherings</a>
           <a class="primary-btn button-link" href="/manager-create-gathering">Create New Gathering</a>
         </div>
       </section>

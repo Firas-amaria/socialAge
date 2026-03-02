@@ -4,6 +4,7 @@
 
   const links = [
     { href: "/manager-gatherings", label: "Manage My Gatherings" },
+    { href: "/manager-past-gatherings", label: "Past Gatherings" },
     { href: "/manager-create-gathering", label: "Create New Gathering" },
   ];
 

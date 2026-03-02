@@ -4,6 +4,8 @@
   "/manager-application-status": "pages/manager-application-status.html",
   "/manager-dashboard": "pages/manager-gatherings.html",
   "/manager-gatherings": "pages/manager-gatherings.html",
+  "/manager-past-gatherings": "pages/manager-past-gatherings.html",
+  "/manager-gathering-detail": "pages/manager-gathering-detail.html",
   "/manager-create-gathering": "pages/manager-create-gathering.html",
   "/manager-edit-gathering": "pages/manager-edit-gathering.html",
   "/manager-attendees": "pages/manager-attendees.html",

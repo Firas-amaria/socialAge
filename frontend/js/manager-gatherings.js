@@ -1,8 +1,13 @@
 (() => {
+  const DETAIL_ID_STORAGE_KEY = "managerSelectedGatheringId";
   const listEl = document.getElementById("managerGatheringsList");
+  const upcomingListEl = document.getElementById("managerUpcomingGatheringsList");
+  const currentListEl = document.getElementById("managerCurrentGatheringsList");
+  const pastListEl = document.getElementById("managerPastGatheringsList");
   const statusEl = document.getElementById("gatheringsStatus");
 
-  if (!listEl || !statusEl) return;
+  if (!statusEl || (!listEl && !upcomingListEl && !currentListEl && !pastListEl)) return;
+  if (window.managerAuth?.requireManager && !window.managerAuth.requireManager()) return;
 
   const rawUser = window.localStorage.getItem("user");
   const token = window.localStorage.getItem("token");
@@ -41,6 +46,7 @@
     Array.isArray(gathering?.guestAttendees) ? gathering.guestAttendees : [];
   const getTotalAttendeeCount = (gathering) =>
     getAttendees(gathering).length + getGuestAttendees(gathering).length;
+  const cleanText = (value) => (typeof value === "string" ? value.trim() : "");
 
   const toDisplayDate = (date, startTime) => {
     if (!date) return "--";
@@ -61,6 +67,47 @@
     const parsed = new Date(source).getTime();
     return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
   };
+  const getGatheringTimestamp = (gathering, timeValue) => {
+    const dateText = cleanText(gathering?.date);
+    const normalizedTime = cleanText(timeValue) || "00:00";
+    const timestamp = new Date(`${dateText}T${normalizedTime}`).getTime();
+    return Number.isNaN(timestamp) ? null : timestamp;
+  };
+  const getGatheringStartTimestamp = (gathering) => {
+    const startText = cleanText(gathering?.startTime) || "00:00";
+    return getGatheringTimestamp(gathering, startText);
+  };
+  const getGatheringEndTimestamp = (gathering) => {
+    const endText = cleanText(gathering?.endTime) || cleanText(gathering?.startTime) || "23:59";
+    const timestamp = getGatheringTimestamp(gathering, endText);
+    if (timestamp === null) return null;
+    const startTimestamp = getGatheringStartTimestamp(gathering);
+    if (startTimestamp !== null && timestamp < startTimestamp) {
+      return timestamp + 24 * 60 * 60 * 1000;
+    }
+    return Number.isNaN(timestamp) ? null : timestamp;
+  };
+  const isActiveGathering = (gathering) => gathering?.status === "active";
+  const isUpcomingGathering = (gathering) => {
+    if (!isActiveGathering(gathering)) return false;
+    const startTimestamp = getGatheringStartTimestamp(gathering);
+    if (startTimestamp === null) return false;
+    return startTimestamp > Date.now();
+  };
+  const isCurrentGathering = (gathering) => {
+    if (!isActiveGathering(gathering)) return false;
+    const now = Date.now();
+    const startTimestamp = getGatheringStartTimestamp(gathering);
+    const endTimestamp = getGatheringEndTimestamp(gathering);
+    if (startTimestamp === null || endTimestamp === null) return false;
+    return startTimestamp <= now && endTimestamp > now;
+  };
+  const isPastGathering = (gathering) => {
+    if (!isActiveGathering(gathering)) return true;
+    const endTimestamp = getGatheringEndTimestamp(gathering);
+    if (endTimestamp === null) return false;
+    return endTimestamp <= Date.now();
+  };
 
   const formatType = (value) => {
     if (!value) return "--";
@@ -68,12 +115,6 @@
       .toString()
       .replace(/_/g, " ")
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  };
-
-  const formatAttendeeName = (attendee) => {
-    if (!attendee) return "Unknown attendee";
-    if (typeof attendee === "string") return "Registered attendee";
-    return attendee.name || attendee.email || "Registered attendee";
   };
 
   const makeText = (tag, className, value) => {
@@ -94,23 +135,26 @@
     return row;
   };
 
-  const renderEmpty = (message) => {
-    listEl.innerHTML = "";
+  const renderEmpty = (container, message, withCta = false) => {
+    if (!container) return;
+    container.innerHTML = "";
     const empty = document.createElement("div");
     empty.className = "empty-state";
     empty.appendChild(makeText("p", "empty-title", "No gatherings yet"));
     empty.appendChild(makeText("p", "subtitle", message));
 
-    const link = document.createElement("a");
-    link.className = "primary-btn button-link";
-    link.href = "/manager-create-gathering";
-    link.textContent = "Create your first gathering";
-    empty.appendChild(link);
+    if (withCta) {
+      const link = document.createElement("a");
+      link.className = "primary-btn button-link";
+      link.href = "/manager-create-gathering";
+      link.textContent = "Create your first gathering";
+      empty.appendChild(link);
+    }
 
-    listEl.appendChild(empty);
+    container.appendChild(empty);
   };
 
-  const updateGatheringStatus = async (gathering, nextStatus, button, badge) => {
+  const updateGatheringStatus = async (gathering, nextStatus, button) => {
     if (!window.api || typeof window.api.patch !== "function") {
       setStatus("API client is not available on this page.", "error");
       return;
@@ -121,22 +165,10 @@
     button.textContent = "Saving...";
 
     try {
-      const updated = await window.api.patch(`/gatherings/${gathering._id}`, {
-        status: nextStatus,
-      });
-
+      const updated = await window.api.patch(`/gatherings/${gathering._id}`, { status: nextStatus });
       gathering.status = updated?.status || nextStatus;
-
-      const isActive = gathering.status === "active";
-      badge.textContent = isActive ? "Active" : "Inactive";
-      badge.className = `gathering-card__badge ${
-        isActive ? "gathering-card__badge--active" : "gathering-card__badge--inactive"
-      }`;
-
-      button.textContent = isActive ? "Mark inactive" : "Mark active";
-      button.className = isActive ? "secondary-btn" : "primary-btn";
-
       setStatus(`Updated "${gathering.name}" to ${gathering.status}.`, "success");
+      await loadGatherings();
     } catch (error) {
       const message =
         error instanceof Error
@@ -166,7 +198,6 @@
       ),
     );
     content.appendChild(makeMeta("Where", gathering.address || "--"));
-    content.appendChild(makeMeta("Map Link", gathering.location || "--"));
     content.appendChild(makeMeta("Type", formatType(gathering.type)));
     content.appendChild(
       makeText(
@@ -190,7 +221,7 @@
     );
 
     const badge = document.createElement("span");
-    const isActive = gathering.status !== "inactive";
+    const isActive = gathering.status === "active";
     badge.className = `gathering-card__badge ${
       isActive ? "gathering-card__badge--active" : "gathering-card__badge--inactive"
     }`;
@@ -216,48 +247,31 @@
       ),
     );
 
-    const attendeesLabel = makeText("p", "manager-gathering-subtitle", "Attendees");
-    content.appendChild(attendeesLabel);
-
-    const attendees = getAttendees(gathering);
-    const guests = getGuestAttendees(gathering);
-    const allAttendees = [
-      ...attendees.map((item) => ({ name: formatAttendeeName(item) })),
-      ...guests.map((item) => ({ name: `${item.name || "Guest"} (Guest)` })),
-    ];
-    if (allAttendees.length === 0) {
-      content.appendChild(makeText("p", "help", "No attendees yet."));
-    } else {
-      const list = document.createElement("ul");
-      list.className = "manager-attendee-list";
-
-      allAttendees.slice(0, 6).forEach((attendee) => {
-        const li = document.createElement("li");
-        li.textContent = attendee.name;
-        list.appendChild(li);
-      });
-
-      if (allAttendees.length > 6) {
-        const li = document.createElement("li");
-        li.textContent = `+${allAttendees.length - 6} more`;
-        list.appendChild(li);
-      }
-
-      content.appendChild(list);
-    }
-
     const actions = document.createElement("div");
     actions.className = "button-grid manager-gathering-actions";
+
+    const detailsLink = document.createElement("a");
+    detailsLink.className = "primary-btn button-link";
+    detailsLink.href = "/manager-gathering-detail";
+    detailsLink.textContent = "Details";
+    detailsLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (gathering?._id) {
+        window.sessionStorage.setItem(DETAIL_ID_STORAGE_KEY, gathering._id);
+      }
+      window.location.href = "/manager-gathering-detail";
+    });
 
     const toggleStatusBtn = document.createElement("button");
     toggleStatusBtn.type = "button";
     toggleStatusBtn.className = isActive ? "secondary-btn" : "primary-btn";
     toggleStatusBtn.textContent = isActive ? "Mark inactive" : "Mark active";
     toggleStatusBtn.addEventListener("click", () => {
-      const nextStatus = gathering.status === "inactive" ? "active" : "inactive";
-      updateGatheringStatus(gathering, nextStatus, toggleStatusBtn, badge);
+      const nextStatus = gathering.status === "active" ? "inactive" : "active";
+      updateGatheringStatus(gathering, nextStatus, toggleStatusBtn);
     });
 
+    actions.appendChild(detailsLink);
     actions.appendChild(toggleStatusBtn);
     content.appendChild(actions);
     item.appendChild(content);
@@ -265,10 +279,26 @@
     return item;
   };
 
-  const loadGatherings = async () => {
+  const renderGatheringsTo = (container, gatherings, emptyMessage, sortDescending = false) => {
+    if (!container) return;
+    container.innerHTML = "";
+    const ordered = [...gatherings].sort((a, b) => {
+      if (sortDescending) return toSortValue(b) - toSortValue(a);
+      return toSortValue(a) - toSortValue(b);
+    });
+    if (ordered.length === 0) {
+      renderEmpty(container, emptyMessage);
+      return;
+    }
+    ordered.forEach((gathering) => {
+      container.appendChild(renderGathering(gathering));
+    });
+  };
+
+  async function loadGatherings() {
     if (!token || !currentUserId) {
       setStatus("Please log in as a manager to view your gatherings.", "error");
-      renderEmpty("Sign in first, then create and manage gatherings here.");
+      renderEmpty(listEl || upcomingListEl || currentListEl || pastListEl, "Sign in first, then create and manage gatherings here.");
       return;
     }
 
@@ -291,30 +321,56 @@
 
       if (ownGatherings.length === 0) {
         setStatus("No gatherings found for your account yet.");
-        renderEmpty("Once you create a gathering, it will appear here.");
+        if (listEl) {
+          renderEmpty(listEl, "Once you create a gathering, it will appear here.", true);
+        }
+        renderGatheringsTo(upcomingListEl, [], "No upcoming gatherings right now.");
+        renderGatheringsTo(currentListEl, [], "No current gatherings right now.");
+        renderGatheringsTo(pastListEl, [], "No past gatherings available.");
         return;
       }
 
-      listEl.innerHTML = "";
-      ownGatherings.forEach((gathering) => {
-        listEl.appendChild(renderGathering(gathering));
-      });
+      const upcoming = ownGatherings.filter(isUpcomingGathering);
+      const current = ownGatherings.filter(isCurrentGathering);
+      const past = ownGatherings.filter(isPastGathering);
+
+      if (listEl) {
+        renderGatheringsTo(listEl, ownGatherings, "No gatherings available.");
+      }
+      renderGatheringsTo(upcomingListEl, upcoming, "No upcoming gatherings right now.");
+      renderGatheringsTo(currentListEl, current, "No current gatherings right now.");
+      renderGatheringsTo(pastListEl, past, "No past gatherings available.", true);
 
       const totalAttendees = ownGatherings.reduce(
         (sum, gathering) => sum + getTotalAttendeeCount(gathering),
         0,
       );
-      setStatus(
-        `Showing ${ownGatherings.length} gathering(s) with ${totalAttendees} total attendee(s).`,
-        "success",
-      );
+      if (pastListEl && !upcomingListEl && !currentListEl) {
+        setStatus(
+          `Showing ${past.length} past gathering(s) with ${totalAttendees} total attendee(s).`,
+          "success",
+        );
+      } else if (upcomingListEl || currentListEl) {
+        setStatus(
+          `Showing ${upcoming.length} upcoming and ${current.length} current gathering(s).`,
+          "success",
+        );
+      } else {
+        setStatus(
+          `Showing ${ownGatherings.length} gathering(s) with ${totalAttendees} total attendee(s).`,
+          "success",
+        );
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not load gatherings.";
       setStatus(`Failed to load gatherings: ${message}`, "error");
-      listEl.innerHTML = "";
+      if (listEl) listEl.innerHTML = "";
+      if (upcomingListEl) upcomingListEl.innerHTML = "";
+      if (currentListEl) currentListEl.innerHTML = "";
+      if (pastListEl) pastListEl.innerHTML = "";
     }
-  };
+  }
 
   loadGatherings();
 })();

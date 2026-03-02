@@ -473,7 +473,7 @@
           const status = result?.registrationEmail;
           if (!status) return "Registration completed.";
           if (status.sent) return "Registration completed. Confirmation email sent.";
-          if (status.reason === "already_registered") return "You are already registered for this gathering.";
+          if (status.reason === "already_registered") return "Registration successfully.";
           if (status.reason === "smtp_not_configured") return "Registration completed. Email not sent (SMTP not configured).";
           if (status.reason === "send_failed") return "Registration completed, but email sending failed.";
           return "Registration completed.";
@@ -482,7 +482,7 @@
         if (isLoggedIn()) {
           const result = await window.api.post(`/gatherings/${gathering._id}/attendees`, {});
           window.alert(emailStatusMessage(result));
-          window.location.href = "/elder-my-gatherings";
+          window.location.href = "/elder-dashboard";
         } else {
           if (!isFreeForAllType(gathering)) {
             window.location.href = "/login";
@@ -500,8 +500,13 @@
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Could not register.";
+        if (message.toLowerCase().includes("already")) {
+          window.alert("Registration successfully.");
+          window.location.href = "/elder-dashboard";
+          return;
+        }
         registerBtn.disabled = false;
-        registerBtn.textContent = message.includes("already") ? "Already Joined" : "Register";
+        registerBtn.textContent = "Register";
       }
     });
   };
