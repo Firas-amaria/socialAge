@@ -1,7 +1,6 @@
 (() => {
   const env = window.__ENV || {};
-  const baseUrl = env.API_BASE_URL || "http://localhost:3001";
-  const isDemo = String(env.DEMO || "").toLowerCase() === "true";
+  const baseUrl = env.API_BASE_URL || "http://localhost:3000";
 
   const getToken = () => window.localStorage.getItem("token") || "";
 
@@ -33,10 +32,12 @@
     return data;
   };
 
-  const realClient = {
+  const client = {
     baseUrl,
     isDemo: false,
     get: (path, opts) => request(path, { ...opts, method: "GET" }),
+    getGatheringById: (id, opts) =>
+      request(`/gatherings/${encodeURIComponent(id)}`, { ...opts, method: "GET" }),
     post: (path, body, opts) => request(path, { ...opts, method: "POST", body }),
     put: (path, body, opts) => request(path, { ...opts, method: "PUT", body }),
     patch: (path, body, opts) => request(path, { ...opts, method: "PATCH", body }),
@@ -44,36 +45,5 @@
     upload: (path, formData, opts) => request(path, { ...opts, method: "POST", body: formData, isForm: true }),
   };
 
-  const missingFakeApi = {
-    baseUrl,
-    isDemo: true,
-    get: (path) =>
-      Promise.resolve({ ok: false, demo: true, path, method: "GET", message: "fake API not loaded" }),
-    post: (path, body) =>
-      Promise.resolve({ ok: false, demo: true, path, method: "POST", body, message: "fake API not loaded" }),
-    put: (path, body) =>
-      Promise.resolve({ ok: false, demo: true, path, method: "PUT", body, message: "fake API not loaded" }),
-    patch: (path, body) =>
-      Promise.resolve({ ok: false, demo: true, path, method: "PATCH", body, message: "fake API not loaded" }),
-    del: (path) =>
-      Promise.resolve({ ok: false, demo: true, path, method: "DELETE", message: "fake API not loaded" }),
-    upload: (path, formData) =>
-      Promise.resolve({ ok: false, demo: true, path, method: "POST", body: formData, message: "fake API not loaded" }),
-  };
-
-  const client = isDemo ? window.fakeApi || missingFakeApi : realClient;
-
   window.api = client;
-
-  if (isDemo && !window.fakeApi) {
-    const script = document.createElement("script");
-    script.src = "../js/api.fake.js";
-    script.async = true;
-    script.onload = () => {
-      if (window.fakeApi) {
-        window.api = window.fakeApi;
-      }
-    };
-    document.head.appendChild(script);
-  }
 })();
