@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Gathering Detail</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-admin-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-admin-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="adminGatheringDetailTitle">
+      <header class="card-header">
+        <p class="eyebrow">Admin</p>
+        <h1 id="adminGatheringDetailTitle">Gathering Detail</h1>
+        <p class="subtitle">Inspect full details and cancel if required.</p>
+      </header>
+
+      <p id="adminGatheringDetailStatus" class="status" role="status" aria-live="polite">Loading gathering...</p>
+      <div id="adminGatheringDetailContent" class="stack-list"></div>
+
+      <div class="list-card__actions">
+        <button id="adminCancelGatheringBtn" type="button" class="secondary-btn">Cancel Gathering</button>
+        <a class="secondary-btn button-link" href="/admin-gatherings">Back to Gatherings</a>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin-common.js"></script>
+<script src="../js/admin-header.js"></script>
+<script src="../js/admin-sidebar.js"></script>
+<script src="../js/admin-gathering-detail.js"></script>
+</body>
+</html>
