@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Gatherings</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-admin-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-admin-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="adminGatheringsTitle">
+      <header class="card-header">
+        <p class="eyebrow">Admin</p>
+        <h1 id="adminGatheringsTitle">Gatherings</h1>
+        <p class="subtitle">Search and filter all gatherings.</p>
+      </header>
+
+      <div class="filter-row">
+        <label>
+          <span>Search</span>
+          <input id="adminGatheringsSearch" type="search" placeholder="Name, address, manager">
+        </label>
+        <label>
+          <span>Status</span>
+          <select id="adminGatheringsStatusFilter">
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </label>
+      </div>
+
+      <p id="adminGatheringsStatus" class="status" role="status" aria-live="polite">Loading gatherings...</p>
+      <div class="table-wrap">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Manager</th>
+              <th>Total Attendees</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminGatheringsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin-common.js"></script>
+<script src="../js/admin-header.js"></script>
+<script src="../js/admin-sidebar.js"></script>
+<script src="../js/admin-gatherings.js"></script>
+</body>
+</html>

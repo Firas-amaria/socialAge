@@ -12,6 +12,8 @@
 
   const browseContainer = document.getElementById("browseContainer");
   const myGatheringsList = document.getElementById("myGatheringsList");
+  const currentGatheringsList = document.getElementById("currentGatheringsList");
+  const pastGatheringsList = document.getElementById("pastGatheringsList");
   const registerBtn = document.getElementById("registerBtn");
   const DETAIL_ID_STORAGE_KEY = "elderSelectedGatheringId";
 
@@ -30,6 +32,48 @@
     return (user?._id || user?.id || "").toString();
   };
   const isLoggedIn = () => Boolean(window.localStorage.getItem("token"));
+  const isDashboardPath = () =>
+    window.location.pathname === "/" || window.location.pathname === "/elder-dashboard";
+  const isAdminRole = (role) => role === "Admin";
+  const isManagerRole = (role) => role === "SocialM";
+
+  const redirectManagerAwayFromElderDashboard = async () => {
+    if (!isDashboardPath()) return false;
+
+    const token = window.localStorage.getItem("token");
+    if (!token) return false;
+
+    const localUser = getStoredUser();
+    if (isAdminRole(localUser?.role)) {
+      window.location.href = "/admin-dashboard";
+      return true;
+    }
+    if (isManagerRole(localUser?.role)) {
+      window.location.href = "/manager-dashboard";
+      return true;
+    }
+
+    if (!window.api || typeof window.api.get !== "function") return false;
+
+    try {
+      const freshUser = await window.api.get("/users/me");
+      if (freshUser) {
+        window.localStorage.setItem("user", JSON.stringify(freshUser));
+      }
+      if (isAdminRole(freshUser?.role)) {
+        window.location.href = "/admin-dashboard";
+        return true;
+      }
+      if (isManagerRole(freshUser?.role)) {
+        window.location.href = "/manager-dashboard";
+        return true;
+      }
+    } catch (_error) {
+      // Ignore and continue as elder if profile refresh fails.
+    }
+
+    return false;
+  };
 
   const getAttendees = (gathering) =>
     Array.isArray(gathering?.attendees) ? gathering.attendees : [];
@@ -40,11 +84,59 @@
     return (attendee._id || attendee.id || "").toString() === userId;
   };
 
-  const isActiveGathering = (gathering) =>
-    gathering?.status === "active" || !gathering?.status;
+  const getGatheringTimestamp = (gathering, timeValue) => {
+    const dateText = cleanText(gathering?.date);
+    const normalizedTime = cleanText(timeValue) || "00:00";
+    const timestamp = new Date(`${dateText}T${normalizedTime}`).getTime();
+    return Number.isNaN(timestamp) ? null : timestamp;
+  };
+
+  const getGatheringStartTimestamp = (gathering) => {
+    const startText = cleanText(gathering?.startTime) || "00:00";
+    return getGatheringTimestamp(gathering, startText);
+  };
+
+  const getGatheringEndTimestamp = (gathering) => {
+    const endText = cleanText(gathering?.endTime) || cleanText(gathering?.startTime) || "23:59";
+    const timestamp = getGatheringTimestamp(gathering, endText);
+    if (timestamp === null) return null;
+    const startTimestamp = getGatheringStartTimestamp(gathering);
+    if (startTimestamp !== null && timestamp < startTimestamp) {
+      return timestamp + 24 * 60 * 60 * 1000;
+    }
+    return Number.isNaN(timestamp) ? null : timestamp;
+  };
+
+  const isActiveGathering = (gathering) => gathering?.status === "active";
+  const isUpcomingGathering = (gathering) => {
+    if (!isActiveGathering(gathering)) return false;
+    const startTimestamp = getGatheringStartTimestamp(gathering);
+    if (startTimestamp === null) return false;
+    return startTimestamp > Date.now();
+  };
+  const isCurrentGathering = (gathering) => {
+    if (!isActiveGathering(gathering)) return false;
+    const now = Date.now();
+    const startTimestamp = getGatheringStartTimestamp(gathering);
+    const endTimestamp = getGatheringEndTimestamp(gathering);
+    if (startTimestamp === null || endTimestamp === null) return false;
+    return startTimestamp <= now && endTimestamp > now;
+  };
+  const isPastGathering = (gathering) => {
+    if (!isActiveGathering(gathering)) return true;
+    const endTimestamp = getGatheringEndTimestamp(gathering);
+    if (endTimestamp === null) return false;
+    return endTimestamp <= Date.now();
+  };
   const isFreeForAllType = (gathering) => {
     const type = cleanText(gathering?.type).toLowerCase().replace(/[\s-]+/g, "_");
     return type === "free_for_all";
+  };
+  const isCurrentUserRegistered = (gathering) => {
+    if (!isLoggedIn()) return false;
+    const userId = getCurrentUserId();
+    if (!userId) return false;
+    return getAttendees(gathering).some((attendee) => attendeeMatchesUser(attendee, userId));
   };
 
   const createActionLink = (href, text, className = "primary-btn") => {
@@ -187,7 +279,7 @@
     if (gatherings.length === 0) {
       const empty = document.createElement("p");
       empty.className = "subtitle";
-      empty.textContent = "No active gatherings right now.";
+      empty.textContent = "No upcoming active gatherings right now.";
       browseContainer.appendChild(empty);
       return;
     }
@@ -198,34 +290,69 @@
     browseContainer.appendChild(grid);
   };
 
+  const renderGatheringsGrid = (container, gatherings, emptyText) => {
+    if (!container) return;
+    container.innerHTML = "";
+    if (gatherings.length === 0) {
+      container.innerHTML = `<p class="subtitle">${emptyText}</p>`;
+      return;
+    }
+    const grid = document.createElement("div");
+    grid.className = "elder-gatherings-grid";
+    gatherings.forEach((gathering) => {
+      grid.appendChild(createBrowseCard(gathering));
+    });
+    container.appendChild(grid);
+  };
+
+  const getMyGatherings = (gatherings) => {
+    const userId = getCurrentUserId();
+    if (!userId) return null;
+    return gatherings.filter((gathering) =>
+      getAttendees(gathering).some((attendee) => attendeeMatchesUser(attendee, userId)),
+    );
+  };
+
   const renderMyGatherings = (gatherings) => {
     if (!myGatheringsList) return;
-    myGatheringsList.innerHTML = "";
-
-    const userId = getCurrentUserId();
-    if (!userId) {
+    const mine = getMyGatherings(gatherings);
+    if (!mine) {
       myGatheringsList.innerHTML = `
         <p class="subtitle">Please log in to see your gatherings.</p>
         <a class="primary-btn button-link" href="/login">Go to Login</a>
       `;
       return;
     }
+    renderGatheringsGrid(myGatheringsList, mine, "No upcoming gatherings yet.");
+  };
 
-    const mine = gatherings.filter((gathering) =>
-      getAttendees(gathering).some((attendee) => attendeeMatchesUser(attendee, userId)),
-    );
-
-    if (mine.length === 0) {
-      myGatheringsList.innerHTML = "<p class=\"subtitle\">No gatherings yet.</p>";
+  const renderCurrentGatherings = (gatherings) => {
+    if (!currentGatheringsList) return;
+    const mine = getMyGatherings(gatherings);
+    if (!mine) {
+      currentGatheringsList.innerHTML = `
+        <p class="subtitle">Please log in to see your current gatherings.</p>
+        <a class="primary-btn button-link" href="/login">Go to Login</a>
+      `;
       return;
     }
+    renderGatheringsGrid(
+      currentGatheringsList,
+      mine.filter(isCurrentGathering),
+      "No current gatherings right now.",
+    );
+  };
 
-    const grid = document.createElement("div");
-    grid.className = "elder-gatherings-grid";
-    mine.forEach((gathering) => {
-      grid.appendChild(createBrowseCard(gathering));
-    });
-    myGatheringsList.appendChild(grid);
+  const renderPastGatherings = (gatherings) => {
+    if (!pastGatheringsList) return;
+    const pastItems = gatherings
+      .filter(isPastGathering)
+      .sort((a, b) => {
+        const aValue = getGatheringEndTimestamp(a) ?? 0;
+        const bValue = getGatheringEndTimestamp(b) ?? 0;
+        return bValue - aValue;
+      });
+    renderGatheringsGrid(pastGatheringsList, pastItems, "No past gatherings available.");
   };
 
   const populateDetails = (gathering) => {
@@ -275,11 +402,12 @@
       ? items
       : items.filter(isFreeForAllType);
     return filteredByAccess
-      .filter(isActiveGathering)
       .sort((a, b) => {
-        const aValue = new Date(`${a.date || ""}T${a.startTime || "00:00"}`).getTime();
-        const bValue = new Date(`${b.date || ""}T${b.startTime || "00:00"}`).getTime();
-        return (Number.isNaN(aValue) ? Number.MAX_SAFE_INTEGER : aValue) - (Number.isNaN(bValue) ? Number.MAX_SAFE_INTEGER : bValue);
+        const aValue = getGatheringStartTimestamp(a);
+        const bValue = getGatheringStartTimestamp(b);
+        const normalizedA = aValue === null ? Number.MAX_SAFE_INTEGER : aValue;
+        const normalizedB = bValue === null ? Number.MAX_SAFE_INTEGER : bValue;
+        return normalizedA - normalizedB;
       });
   };
 
@@ -328,6 +456,15 @@
     populateDetails(gathering);
 
     if (!registerBtn) return;
+    if (isCurrentUserRegistered(gathering)) {
+      registerBtn.disabled = true;
+      registerBtn.textContent = "Registered";
+      registerBtn.classList.add("is-registered");
+      registerBtn.style.background = "#a4b5cb";
+      registerBtn.style.borderColor = "#a4b5cb";
+      return;
+    }
+
     registerBtn.addEventListener("click", async () => {
       registerBtn.disabled = true;
       registerBtn.textContent = "Registering...";
@@ -371,17 +508,27 @@
 
   const init = async () => {
     try {
+      const redirected = await redirectManagerAwayFromElderDashboard();
+      if (redirected) return;
+
       const shouldLoadLists = Boolean(browseContainer || myGatheringsList);
-      if (shouldLoadLists) {
+      const shouldLoadCurrent = Boolean(currentGatheringsList);
+      const shouldLoadPast = Boolean(pastGatheringsList);
+      if (shouldLoadLists || shouldLoadCurrent || shouldLoadPast) {
         const gatherings = await loadGatherings();
-        renderBrowse(gatherings);
-        renderMyGatherings(gatherings);
+        const upcomingActive = gatherings.filter(isUpcomingGathering);
+        renderBrowse(upcomingActive);
+        renderMyGatherings(upcomingActive);
+        renderCurrentGatherings(gatherings);
+        renderPastGatherings(gatherings);
       }
       await loadDetails();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not load gatherings.";
       if (browseContainer) browseContainer.innerHTML = `<p class="subtitle">${message}</p>`;
       if (myGatheringsList) myGatheringsList.innerHTML = `<p class="subtitle">${message}</p>`;
+      if (currentGatheringsList) currentGatheringsList.innerHTML = `<p class="subtitle">${message}</p>`;
+      if (pastGatheringsList) pastGatheringsList.innerHTML = `<p class="subtitle">${message}</p>`;
       const title = document.getElementById("eventTitle");
       if (title && registerBtn) {
         title.textContent = "Could not load gathering details";

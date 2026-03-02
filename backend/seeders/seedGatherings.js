@@ -7,6 +7,51 @@ const Gathering = require("../models/Gathering");
 dotenv.config();
 
 const SOCIAL_MANAGER_EMAIL = "socialm@gmail.com";
+const GUEST_FIRST_NAMES = [
+  "Alex",
+  "Sam",
+  "Jordan",
+  "Taylor",
+  "Casey",
+  "Riley",
+  "Morgan",
+  "Jamie",
+  "Avery",
+  "Parker",
+  "Drew",
+  "Quinn",
+  "Reese",
+  "Cameron",
+  "Blake",
+  "Kendall",
+  "Harper",
+  "Rowan",
+  "Emerson",
+  "Finley",
+];
+const GUEST_LAST_NAMES = [
+  "Miller",
+  "Davis",
+  "Wilson",
+  "Taylor",
+  "Anderson",
+  "Thomas",
+  "Moore",
+  "Jackson",
+  "Martin",
+  "White",
+  "Harris",
+  "Clark",
+  "Lewis",
+  "Walker",
+  "Hall",
+  "Allen",
+  "Young",
+  "King",
+  "Scott",
+  "Green",
+];
+const GUEST_EMAIL_DOMAINS = ["guestmail.com", "mailinator.com", "example.net"];
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -23,6 +68,45 @@ const addDays = (daysAhead) => {
 };
 const makeMapLink = (label) =>
   `https://maps.google.com/?q=${encodeURIComponent(label)}`;
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const shuffle = (items) => {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+const pickUnique = (items, count) => shuffle(items).slice(0, Math.max(0, count));
+const buildGuestAttendees = (count) =>
+  Array.from({ length: count }, () => {
+    const firstName = GUEST_FIRST_NAMES[randomInt(0, GUEST_FIRST_NAMES.length - 1)];
+    const lastName = GUEST_LAST_NAMES[randomInt(0, GUEST_LAST_NAMES.length - 1)];
+    const suffix = randomInt(1000, 9999);
+    const domain = GUEST_EMAIL_DOMAINS[randomInt(0, GUEST_EMAIL_DOMAINS.length - 1)];
+    const base = `${firstName}.${lastName}.${suffix}`.toLowerCase();
+
+    return {
+      name: `${firstName} ${lastName}`,
+      email: `${base}@${domain}`,
+    };
+  });
+const buildAttendeesForGathering = (gatheringType, elderlyUsers) => {
+  if (gatheringType === "signup_required") {
+    const realUsers = pickUnique(elderlyUsers, Math.min(5, elderlyUsers.length));
+    return {
+      attendees: realUsers.map((user) => user._id),
+      guestAttendees: [],
+    };
+  }
+
+  const realUsers = pickUnique(elderlyUsers, Math.min(1, elderlyUsers.length));
+  const guestCount = randomInt(12, 16);
+  return {
+    attendees: realUsers.map((user) => user._id),
+    guestAttendees: buildGuestAttendees(guestCount),
+  };
+};
 
 const buildGatherings = (smId) => [
   {
@@ -265,6 +349,8 @@ const upsertGathering = async (gatheringData) => {
   existing.description = gatheringData.description;
   existing.status = gatheringData.status;
   existing.type = gatheringData.type;
+  existing.attendees = gatheringData.attendees;
+  existing.guestAttendees = gatheringData.guestAttendees;
   await existing.save();
 
   return {
@@ -287,12 +373,24 @@ const seedGatherings = async () => {
         `Social manager "${SOCIAL_MANAGER_EMAIL}" not found. Run "npm run seed:users" first.`
       );
     }
+    const elderlyUsers = await User.find({ role: "Elderly" }).select("_id").lean();
+    if (!elderlyUsers.length) {
+      throw new Error('No elderly users found. Run "npm run seed:users" first.');
+    }
 
     const gatherings = buildGatherings(socialManager._id);
 
     const results = [];
     for (const gathering of gatherings) {
-      const result = await upsertGathering(gathering);
+      const { attendees, guestAttendees } = buildAttendeesForGathering(
+        gathering.type,
+        elderlyUsers
+      );
+      const result = await upsertGathering({
+        ...gathering,
+        attendees,
+        guestAttendees,
+      });
       results.push(result);
     }
 

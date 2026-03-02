@@ -36,6 +36,66 @@ const users = [
     password: "12345678",
     role: "Elderly",
   },
+  {
+    name: "Elderly User Four",
+    email: "user4@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Five",
+    email: "user5@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Six",
+    email: "user6@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Seven",
+    email: "user7@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Eight",
+    email: "user8@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Nine",
+    email: "user9@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Ten",
+    email: "user10@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Eleven",
+    email: "user11@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Twelve",
+    email: "user12@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
+  {
+    name: "Elderly User Thirteen",
+    email: "user13@gmail.com",
+    password: "12345678",
+    role: "Elderly",
+  },
 ];
 
 const upsertUser = async (userData) => {
@@ -47,6 +107,7 @@ const upsertUser = async (userData) => {
 
   existing.name = userData.name;
   existing.role = userData.role;
+  existing.isActive = true;
   existing.password = userData.password;
   await existing.save();
   return { action: "updated", email: userData.email };

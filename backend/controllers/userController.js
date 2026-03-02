@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+const isAdmin = (user) => user?.role === "Admin";
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -32,6 +34,9 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
+    if (user.isActive === false) {
+      return res.status(403).json({ message: "This account is deactivated. Contact an administrator." });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -59,6 +64,96 @@ const listUsersByRole = async (req, res) => {
     const query = role ? { role } : {};
     const users = await User.find(query).select("name email role");
     res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const listUsersForAdmin = async (req, res) => {
+  try {
+    if (!isAdmin(req.user)) {
+      return res.status(403).json({ message: "Only admins can access this endpoint" });
+    }
+
+    const role = req.query.role;
+    const active = req.query.active;
+    const q = (req.query.q || "").trim();
+
+    const query = {};
+    if (role) query.role = role;
+    if (active === "true") query.isActive = true;
+    if (active === "false") query.isActive = false;
+    if (q) {
+      query.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { email: { $regex: q, $options: "i" } },
+      ];
+    }
+
+    const users = await User.find(query)
+      .select("name email role isActive createdAt updatedAt")
+      .sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const setUserActiveStatus = async (req, res) => {
+  try {
+    if (!isAdmin(req.user)) {
+      return res.status(403).json({ message: "Only admins can update user status" });
+    }
+
+    const { isActive } = req.body || {};
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({ message: "isActive (boolean) is required" });
+    }
+
+    const target = await User.findById(req.params.id);
+    if (!target) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (target._id.toString() === req.user?.id?.toString() && !isActive) {
+      return res.status(400).json({ message: "You cannot deactivate your own account" });
+    }
+
+    target.isActive = isActive;
+    await target.save();
+
+    res.json({
+      message: `User ${isActive ? "activated" : "deactivated"}`,
+      user: {
+        _id: target._id,
+        name: target.name,
+        email: target.email,
+        role: target.role,
+        isActive: target.isActive,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const deleteUserAccount = async (req, res) => {
+  try {
+    if (!isAdmin(req.user)) {
+      return res.status(403).json({ message: "Only admins can delete users" });
+    }
+
+    const target = await User.findById(req.params.id).select("_id");
+    if (!target) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (target._id.toString() === req.user?.id?.toString()) {
+      return res.status(400).json({ message: "You cannot delete your own account" });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User removed" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -130,6 +225,9 @@ module.exports = {
   registerUser,
   loginUser,
   listUsersByRole,
+  listUsersForAdmin,
+  setUserActiveStatus,
+  deleteUserAccount,
   getCurrentUser,
   updateCurrentUser,
 };

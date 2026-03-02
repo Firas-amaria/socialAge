@@ -65,10 +65,15 @@ body.manager {
   justify-content: space-between;
   gap: 16px;
   width: 100%;
+  position: relative;
+  z-index: 60;
 }
 
 .manager-topbar-left {
   min-height: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .manager-topbar-actions {
@@ -91,6 +96,57 @@ body.manager {
   border-right: 1px solid var(--border);
   padding: 24px 18px;
   box-shadow: 8px 0 20px rgba(15, 23, 42, 0.04);
+  position: relative;
+  z-index: 40;
+}
+
+.sidebar-toggle {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sidebar-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 64px 0 0;
+  background: rgba(15, 23, 42, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 30;
+}
+
+.manager-sidebar-top {
+  display: none;
+}
+
+.sidebar-close-btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
 }
 
 .manager-nav {
@@ -134,6 +190,14 @@ body.manager {
   justify-content: space-between;
   gap: 16px;
   width: 100%;
+  position: relative;
+  z-index: 60;
+}
+
+.elder-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .elder-nav .nav-links {
@@ -152,6 +216,42 @@ body.manager {
   align-items: center;
   gap: 12px;
   position: relative;
+}
+
+.elder-sidebar-toggle {
+  display: none;
+}
+
+.elder-sidebar-backdrop {
+  position: fixed;
+  inset: 64px 0 0;
+  background: rgba(15, 23, 42, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 30;
+}
+
+.elder-sidebar-drawer {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  bottom: 0;
+  width: min(280px, 80vw);
+  padding: 24px 18px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  box-shadow: 8px 0 20px rgba(15, 23, 42, 0.2);
+  transform: translateX(-110%);
+  transition: transform 180ms ease;
+  z-index: 40;
+  overflow-y: auto;
+}
+
+.elder-sidebar-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
 }
 
 .account-btn {
@@ -225,6 +325,10 @@ body.manager {
   max-width: 900px;
   margin: 30px auto;
   padding: 20px;
+}
+
+.my-gatherings-container h2 + div {
+  margin-bottom: 20px;
 }
 
 .banner {
@@ -1537,6 +1641,31 @@ button:disabled {
   text-align: center;
 }
 
+.filter-row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 14px;
+}
+
+.filter-row label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.form-stack {
+  display: grid;
+  gap: 8px;
+}
+
 .elder-gatherings-grid {
   display: grid;
   gap: 14px;
@@ -1573,9 +1702,53 @@ button:disabled {
   }
 
   .manager-sidebar {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    box-shadow: none;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 80vw);
+    transform: translateX(-110%);
+    transition: transform 180ms ease;
+    border-right: 1px solid var(--border);
+    border-bottom: none;
+    box-shadow: 8px 0 20px rgba(15, 23, 42, 0.2);
+    overflow-y: auto;
+  }
+
+  .manager-sidebar-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+  }
+
+  .sidebar-toggle {
+    display: inline-flex;
+  }
+
+  body.sidebar-open .manager-sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .elder-sidebar-toggle {
+    display: inline-flex;
+  }
+
+  .elder-nav .nav-links {
+    display: none;
+  }
+
+  body.elder-sidebar-open .elder-sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  body.elder-sidebar-open .elder-sidebar-drawer {
+    transform: translateX(0);
   }
 }
 
@@ -1614,6 +1787,11 @@ button:disabled {
 }
 
 @media (min-width: 1200px) {
+  .container {
+    width: 80vw;
+    max-width: none;
+  }
+
   .page .card,
   .card--wide {
     width: 80vw;

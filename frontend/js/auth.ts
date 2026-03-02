@@ -44,6 +44,10 @@
   };
 
   const redirectByRole = (role) => {
+    if (role === "Admin") {
+      window.location.href = "/admin-dashboard";
+      return;
+    }
     if (role === "Elderly") {
       window.location.href = "/elder-dashboard";
       return;

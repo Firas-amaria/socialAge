@@ -1,5 +1,5 @@
 (() => {
-  const header = document.querySelector("header[data-manager-header]");
+  const header = document.querySelector("header[data-admin-header]");
   if (!header) return;
 
   const sidebar = document.querySelector(".manager-shell .manager-sidebar");
@@ -26,7 +26,7 @@
             Account
           </button>
           <div class="account-menu" role="menu">
-            <a role="menuitem" href="/manager-profile">Profile</a>
+            <a role="menuitem" href="/admin-settings">Settings</a>
             <button type="button" class="logout-btn" role="menuitem">Log out</button>
           </div>
         `

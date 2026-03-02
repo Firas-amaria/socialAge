@@ -4,12 +4,30 @@
 
   const token = window.localStorage.getItem("token");
   const isLoggedIn = Boolean(token);
+  const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  const baseLinks = [
+    { href: "/elder-dashboard", label: "Dashboard" },
+    ...(isLoggedIn
+      ? [
+          { href: "/elder-my-gatherings", label: "My Gatherings" },
+        ]
+      : []),
+  ];
+  const navLinks = baseLinks
+    .map(({ href, label }) => {
+      const normalizedHref = href.replace(/\/+$/, "") || "/";
+      const currentAttr = normalizedHref === currentPath ? ' aria-current="page"' : "";
+      return `<a href="${href}"${currentAttr}>${label}</a>`;
+    })
+    .join("");
 
   header.innerHTML = `
     <nav class="elder-nav">
-      <div class="nav-links">
-        <a href="/elder-dashboard">Dashboard</a>
-        ${isLoggedIn ? `<a href="/elder-my-gatherings">My Gatherings</a>` : ""}
+      <div class="elder-nav-left">
+        <button type="button" class="sidebar-toggle elder-sidebar-toggle" data-elder-sidebar-toggle aria-label="Open menu" aria-expanded="false">☰</button>
+        <div class="nav-links">
+          ${navLinks}
+        </div>
       </div>
       <div class="nav-actions">
         ${
@@ -29,6 +47,69 @@
       </div>
     </nav>
   `;
+
+  const sidebarBackdrop = document.createElement("div");
+  sidebarBackdrop.className = "elder-sidebar-backdrop";
+  sidebarBackdrop.setAttribute("data-elder-sidebar-backdrop", "");
+  const sidebar = document.createElement("aside");
+  sidebar.className = "elder-sidebar-drawer";
+  sidebar.setAttribute("aria-label", "Elder navigation");
+  sidebar.innerHTML = `
+    <div class="elder-sidebar-top">
+      <button type="button" class="sidebar-close-btn" data-elder-sidebar-close aria-label="Close menu">×</button>
+    </div>
+    <nav class="manager-nav elder-sidebar-nav">
+      ${navLinks}
+    </nav>
+  `;
+  document.body.appendChild(sidebarBackdrop);
+  document.body.appendChild(sidebar);
+
+  const sidebarToggleBtn = header.querySelector("[data-elder-sidebar-toggle]");
+  const sidebarCloseBtn = sidebar.querySelector("[data-elder-sidebar-close]");
+
+  const closeSidebar = () => {
+    document.body.classList.remove("elder-sidebar-open");
+    if (sidebarToggleBtn) {
+      sidebarToggleBtn.setAttribute("aria-expanded", "false");
+      sidebarToggleBtn.setAttribute("aria-label", "Open menu");
+    }
+  };
+
+  const openSidebar = () => {
+    document.body.classList.add("elder-sidebar-open");
+    if (sidebarToggleBtn) {
+      sidebarToggleBtn.setAttribute("aria-expanded", "true");
+      sidebarToggleBtn.setAttribute("aria-label", "Close menu");
+    }
+  };
+
+  if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener("click", () => {
+      if (document.body.classList.contains("elder-sidebar-open")) {
+        closeSidebar();
+        return;
+      }
+      openSidebar();
+    });
+  }
+  if (sidebarCloseBtn) {
+    sidebarCloseBtn.addEventListener("click", closeSidebar);
+  }
+  sidebarBackdrop.addEventListener("click", closeSidebar);
+
+  document.addEventListener("click", (event) => {
+    if (
+      document.body.classList.contains("elder-sidebar-open") &&
+      event.target.closest(".elder-sidebar-drawer a")
+    ) {
+      closeSidebar();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeSidebar();
+  });
 
   if (!isLoggedIn) return;
 
@@ -54,7 +135,10 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeMenu();
+    if (event.key === "Escape") {
+      closeMenu();
+      closeSidebar();
+    }
   });
 
   logoutBtn.addEventListener("click", () => {

@@ -64,5 +64,5 @@ function loadRoutes(filePath) {
     console.warn("Could not load routes.json. Falling back to / only.");
   }
 
-  return { "/": "pages/index.html" };
+  return { "/": "pages/elder-dashboard.html" };
 }
