@@ -30,6 +30,24 @@ const authenticateUser = (req, res, next) => {
 };
 
 /**
+ * Middleware to decode JWT when provided, but allow unauthenticated requests.
+ */
+const optionalAuthenticateUser = (req, _res, next) => {
+  const authHeader = req.header("Authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (_error) {
+    req.user = undefined;
+  }
+  next();
+};
+
+/**
  * Middleware to restrict access based on user roles
  * @param {Array} allowedRoles - List of roles allowed to access the route
  */
@@ -42,4 +60,4 @@ const authorizeRoles = (allowedRoles) => (req, res, next) => {
   next();
 };
 
-module.exports = { authenticateUser, authorizeRoles };
+module.exports = { authenticateUser, optionalAuthenticateUser, authorizeRoles };
