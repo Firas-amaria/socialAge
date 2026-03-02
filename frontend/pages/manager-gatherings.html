@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Gatherings</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="manager">
+  <header data-manager-header></header>
+  <div class="manager-shell">
+    <aside class="manager-sidebar" data-manager-sidebar></aside>
+    <main class="manager-content">
+      <section class="card manager-page card--wide" aria-labelledby="page-title">
+        <header class="card-header">
+          <p class="eyebrow">Social Manager Demo</p>
+          <h1 id="page-title">My Gatherings</h1>
+          <p class="subtitle">Track attendance and manage the gatherings you created.</p>
+        </header>
+
+        <p id="gatheringsStatus" class="status" role="status" aria-live="polite">Loading gatherings...</p>
+        <div id="managerGatheringsList" class="manager-gatherings-list" aria-live="polite"></div>
+
+        <a class="back-link" href="/manager-create-gathering">Create New Gathering</a>
+      </section>
+    </main>
+  </div>
+  <script src="/js/env.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/manager-common.js"></script>
+  <script src="../js/manager-header.js"></script>
+  <script src="../js/manager-sidebar.js"></script>
+  <script src="../js/manager-gatherings.js"></script>
+</body>
+
+</html>
