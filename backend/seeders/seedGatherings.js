@@ -7,6 +7,13 @@ const Gathering = require("../models/Gathering");
 dotenv.config();
 
 const SOCIAL_MANAGER_EMAIL = "socialm@gmail.com";
+const USER1_EMAIL = "user1@gmail.com";
+const USER1_CURRENT_GATHERING_NAME = "Coffee and Conversation";
+const MANAGER_EMAILS = {
+  user1: SOCIAL_MANAGER_EMAIL,
+  manager2: "socialm2@gmail.com",
+  manager3: "socialm3@gmail.com",
+};
 const GUEST_FIRST_NAMES = [
   "Alex",
   "Sam",
@@ -66,6 +73,27 @@ const addDays = (daysAhead) => {
   date.setDate(date.getDate() + daysAhead);
   return formatDate(date);
 };
+const formatTime = (date) => {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+const addHours = (date, hours) => {
+  const next = new Date(date);
+  next.setHours(next.getHours() + hours);
+  return next;
+};
+const getCurrentWindow = () => {
+  const now = new Date();
+  now.setSeconds(0, 0);
+  const start = addHours(now, -1);
+  const end = addHours(now, 1);
+  return {
+    date: formatDate(start),
+    startTime: formatTime(start),
+    endTime: formatTime(end),
+  };
+};
 const makeMapLink = (label) =>
   `https://maps.google.com/?q=${encodeURIComponent(label)}`;
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -108,220 +136,206 @@ const buildAttendeesForGathering = (gatheringType, elderlyUsers) => {
   };
 };
 
-const buildGatherings = (smId) => [
-  {
-    name: "Morning Coffee Circle",
-    date: addDays(1),
-    startTime: "09:00",
-    endTime: "10:00",
-    location: "Community Hall - Room A",
-    iconId: "coffee",
-    cardColor: "#4a90e2",
-    description: "Start the day with coffee and friendly conversation.",
-    status: "active",
-    type: "free_for_all",
+const buildGatheringsForManager = (managerKey, smId) => {
+  const current = getCurrentWindow();
+
+  const definitionsByManager = {
+    user1: [
+      {
+        name: "Coffee and Conversation",
+        date: current.date,
+        startTime: current.startTime,
+        endTime: current.endTime,
+        location: "Community Hall - Room A",
+        iconId: "coffee",
+        cardColor: "#4a90e2",
+        description: "Current social coffee gathering.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Creative Art Hour",
+        date: addDays(1),
+        startTime: "11:00",
+        endTime: "12:00",
+        location: "Art Studio - Floor 2",
+        iconId: "art",
+        cardColor: "#f2c94c",
+        description: "Guided drawing and painting practice.",
+        status: "active",
+        type: "signup_required",
+      },
+      {
+        name: "Music Circle",
+        date: addDays(2),
+        startTime: "17:00",
+        endTime: "18:00",
+        location: "Main Lounge",
+        iconId: "music",
+        cardColor: "#8b6cfb",
+        description: "Light sing-along and group music.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Board Games Afternoon",
+        date: addDays(3),
+        startTime: "14:00",
+        endTime: "15:30",
+        location: "Community Hall - Room B",
+        iconId: "games",
+        cardColor: "#4a90e2",
+        description: "Easy board games in small groups.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Garden Walk",
+        date: addDays(4),
+        startTime: "10:30",
+        endTime: "11:30",
+        location: "Garden Room - Ground Floor",
+        iconId: "outdoor",
+        cardColor: "#4caf82",
+        description: "Short guided walk outdoors.",
+        status: "active",
+        type: "free_for_all",
+      },
+    ],
+    manager2: [
+      {
+        name: "Current Stretch Session",
+        date: current.date,
+        startTime: current.startTime,
+        endTime: current.endTime,
+        location: "Community Hall - Room B",
+        iconId: "fitness",
+        cardColor: "#4caf82",
+        description: "Current seated stretching session.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Poetry Reading Circle",
+        date: addDays(1),
+        startTime: "12:30",
+        endTime: "13:30",
+        location: "Library Corner - Room 1",
+        iconId: "book",
+        cardColor: "#8b6cfb",
+        description: "Read and discuss short poems.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Soup and Stories Lunch",
+        date: addDays(2),
+        startTime: "12:00",
+        endTime: "13:00",
+        location: "Dining Hall - Section C",
+        iconId: "food",
+        cardColor: "#e66a6a",
+        description: "Warm lunch and story sharing.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Indoor Plant Care Chat",
+        date: addDays(3),
+        startTime: "10:30",
+        endTime: "11:30",
+        location: "Garden Room - Ground Floor",
+        iconId: "outdoor",
+        cardColor: "#4caf82",
+        description: "Practical tips for home plants.",
+        status: "active",
+        type: "signup_required",
+      },
+      {
+        name: "Puzzle and Tea Hour",
+        date: addDays(4),
+        startTime: "15:30",
+        endTime: "16:30",
+        location: "Community Hall - Room B",
+        iconId: "games",
+        cardColor: "#94a3b8",
+        description: "Relaxed puzzle tables with tea.",
+        status: "active",
+        type: "free_for_all",
+      },
+    ],
+    manager3: [
+      {
+        name: "Current Book Talk",
+        date: current.date,
+        startTime: current.startTime,
+        endTime: current.endTime,
+        location: "Library Corner - Room 1",
+        iconId: "book",
+        cardColor: "#4a90e2",
+        description: "Current guided reading discussion.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Morning Coffee Circle",
+        date: addDays(1),
+        startTime: "09:00",
+        endTime: "10:00",
+        location: "Community Hall - Room A",
+        iconId: "coffee",
+        cardColor: "#4a90e2",
+        description: "Morning coffee and friendly chat.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Neighborhood Book Club",
+        date: addDays(2),
+        startTime: "11:00",
+        endTime: "12:00",
+        location: "Library Corner - Room 1",
+        iconId: "book",
+        cardColor: "#4a90e2",
+        description: "Group discussion around short readings.",
+        status: "active",
+        type: "signup_required",
+      },
+      {
+        name: "Healthy Snacks Demo",
+        date: addDays(3),
+        startTime: "13:30",
+        endTime: "14:30",
+        location: "Dining Hall - Section C",
+        iconId: "food",
+        cardColor: "#f2c94c",
+        description: "Quick healthy snack ideas and tasting.",
+        status: "active",
+        type: "free_for_all",
+      },
+      {
+        name: "Balance and Breathing",
+        date: addDays(4),
+        startTime: "10:30",
+        endTime: "11:30",
+        location: "Community Hall - Room A",
+        iconId: "fitness",
+        cardColor: "#4caf82",
+        description: "Gentle balance and breathing practice.",
+        status: "active",
+        type: "free_for_all",
+      },
+    ],
+  };
+
+  const managerDefinitions = definitionsByManager[managerKey] || [];
+  return managerDefinitions.map((item) => ({
+    ...item,
     smId,
-  },
-  {
-    name: "Gentle Stretch Session",
-    date: addDays(1),
-    startTime: "10:00",
-    endTime: "11:00",
-    location: "Community Hall - Room A",
-    iconId: "fitness",
-    cardColor: "#4caf82",
-    description: "A light seated stretching class with slow movements and breathing breaks.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Creative Art Hour",
-    date: addDays(2),
-    startTime: "13:30",
-    endTime: "15:00",
-    location: "Art Studio - Floor 2",
-    iconId: "art",
-    cardColor: "#f2c94c",
-    description: "A guided art session focused on drawing and color.",
-    status: "active",
-    type: "signup_required",
-    smId,
-  },
-  {
-    name: "Acrylic Basics Workshop",
-    date: addDays(2),
-    startTime: "15:00",
-    endTime: "16:30",
-    location: "Art Studio - Floor 2",
-    iconId: "art",
-    cardColor: "#f2c94c",
-    description: "Practice simple acrylic techniques and leave with a finished mini canvas.",
-    status: "active",
-    type: "signup_required",
-    smId,
-  },
-  {
-    name: "Evening Music Meetup",
-    date: addDays(3),
-    startTime: "18:00",
-    endTime: "19:30",
-    location: "Main Lounge",
-    iconId: "music",
-    cardColor: "#8b6cfb",
-    description: "Light music, group singing, and social time.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Classic Songs Circle",
-    date: addDays(3),
-    startTime: "17:00",
-    endTime: "18:00",
-    location: "Main Lounge",
-    iconId: "music",
-    cardColor: "#8b6cfb",
-    description: "Sing familiar classics together with lyric sheets and easy group rhythm.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Board Games Afternoon",
-    date: addDays(4),
-    startTime: "14:00",
-    endTime: "15:30",
-    location: "Community Hall - Room B",
-    iconId: "games",
-    cardColor: "#4a90e2",
-    description: "Play short board games in small groups with help choosing easy options.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Puzzle and Tea Hour",
-    date: addDays(4),
-    startTime: "15:30",
-    endTime: "16:30",
-    location: "Community Hall - Room B",
-    iconId: "games",
-    cardColor: "#94a3b8",
-    description: "Relax with table puzzles, tea, and casual conversation at your own pace.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Neighborhood Book Talk",
-    date: addDays(5),
-    startTime: "11:00",
-    endTime: "12:00",
-    location: "Library Corner - Room 1",
-    iconId: "book",
-    cardColor: "#4a90e2",
-    description: "Discuss a short story together with guided prompts and shared reflections.",
-    status: "active",
-    type: "signup_required",
-    smId,
-  },
-  {
-    name: "Poetry Reading Circle",
-    date: addDays(5),
-    startTime: "12:30",
-    endTime: "13:30",
-    location: "Library Corner - Room 1",
-    iconId: "book",
-    cardColor: "#8b6cfb",
-    description: "Read selected poems aloud and chat about favorite lines in a small group.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Indoor Plant Care Chat",
-    date: addDays(6),
-    startTime: "10:30",
-    endTime: "11:30",
-    location: "Garden Room - Ground Floor",
-    iconId: "outdoor",
-    cardColor: "#4caf82",
-    description: "Learn practical plant care tips and swap easy routines for home greenery.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Garden Walk and Photos",
-    date: addDays(6),
-    startTime: "16:00",
-    endTime: "17:00",
-    location: "Garden Room - Ground Floor",
-    iconId: "outdoor",
-    cardColor: "#4caf82",
-    description: "Take a short guided walk and capture seasonal flowers with phone cameras.",
-    status: "active",
-    type: "signup_required",
-    smId,
-  },
-  {
-    name: "Soup and Stories Lunch",
-    date: addDays(7),
-    startTime: "12:00",
-    endTime: "13:00",
-    location: "Dining Hall - Section C",
-    iconId: "food",
-    cardColor: "#e66a6a",
-    description: "Enjoy a warm soup lunch while sharing personal stories in roundtable groups.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Healthy Snacks Demo",
-    date: addDays(7),
-    startTime: "13:30",
-    endTime: "14:30",
-    location: "Dining Hall - Section C",
-    iconId: "food",
-    cardColor: "#f2c94c",
-    description: "Watch quick snack recipes and taste simple options made with fresh ingredients.",
-    status: "active",
-    type: "signup_required",
-    smId,
-  },
-  {
-    name: "Memory Lane Coffee Chat",
-    date: addDays(8),
-    startTime: "09:30",
-    endTime: "10:30",
-    location: "Community Hall - Room A",
-    iconId: "coffee",
-    cardColor: "#4a90e2",
-    description: "A friendly coffee meetup focused on old photos, memories, and light conversation.",
-    status: "active",
-    type: "free_for_all",
-    smId,
-  },
-  {
-    name: "Guided Breathing and Balance",
-    date: addDays(8),
-    startTime: "10:30",
-    endTime: "11:30",
-    location: "Community Hall - Room A",
-    iconId: "fitness",
-    cardColor: "#4caf82",
-    description: "Practice easy breathing and balance exercises designed for comfort and safety.",
-    status: "active",
-    type: "signup_required",
-    smId,
-  },
-].map((item) => ({
-  ...item,
-  address: item.location,
-  location: makeMapLink(item.location),
-}));
+    address: item.location,
+    location: makeMapLink(item.location),
+  }));
+};
 
 const upsertGathering = async (gatheringData) => {
   const filter = {
@@ -363,22 +377,42 @@ const seedGatherings = async () => {
   try {
     await connectDB();
 
-    const socialManager = await User.findOne({
-      email: SOCIAL_MANAGER_EMAIL,
+    const managerEmails = Object.values(MANAGER_EMAILS);
+    const socialManagers = await User.find({
+      email: { $in: managerEmails },
       role: "SocialM",
-    });
+    })
+      .select("_id email")
+      .lean();
 
-    if (!socialManager) {
+    const managerByEmail = new Map(socialManagers.map((user) => [user.email, user]));
+    const missingManagerEmails = managerEmails.filter((email) => !managerByEmail.has(email));
+    if (missingManagerEmails.length) {
       throw new Error(
-        `Social manager "${SOCIAL_MANAGER_EMAIL}" not found. Run "npm run seed:users" first.`
+        `Missing social manager(s): ${missingManagerEmails.join(
+          ", "
+        )}. Run "npm run seed:users" first.`
       );
     }
+
     const elderlyUsers = await User.find({ role: "Elderly" }).select("_id").lean();
     if (!elderlyUsers.length) {
       throw new Error('No elderly users found. Run "npm run seed:users" first.');
     }
+    const user1 = await User.findOne({ email: USER1_EMAIL, role: "Elderly" })
+      .select("_id")
+      .lean();
+    if (!user1) {
+      throw new Error(
+        `Elderly user "${USER1_EMAIL}" not found. Ensure seedUsers marks this account as Elderly.`
+      );
+    }
 
-    const gatherings = buildGatherings(socialManager._id);
+    const gatherings = [
+      ...buildGatheringsForManager("user1", managerByEmail.get(MANAGER_EMAILS.user1)._id),
+      ...buildGatheringsForManager("manager2", managerByEmail.get(MANAGER_EMAILS.manager2)._id),
+      ...buildGatheringsForManager("manager3", managerByEmail.get(MANAGER_EMAILS.manager3)._id),
+    ];
 
     const results = [];
     for (const gathering of gatherings) {
@@ -386,9 +420,16 @@ const seedGatherings = async () => {
         gathering.type,
         elderlyUsers
       );
+      const ensuredAttendees = [...attendees];
+      if (
+        gathering.name === USER1_CURRENT_GATHERING_NAME &&
+        !ensuredAttendees.some((id) => String(id) === String(user1._id))
+      ) {
+        ensuredAttendees.push(user1._id);
+      }
       const result = await upsertGathering({
         ...gathering,
-        attendees,
+        attendees: ensuredAttendees,
         guestAttendees,
       });
       results.push(result);
