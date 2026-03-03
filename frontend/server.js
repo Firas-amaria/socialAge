@@ -6,23 +6,30 @@ require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const PORT = process.env.PORT || 3002;
-const isDemo = String(process.env.DEMO || "").toLowerCase() === "true";
 
-if (isDemo) {
-  seedFakeData();
-}
-
-app.use(express.static(path.join(__dirname)));
+app.use(
+  express.static(path.join(__dirname), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith(".ts")) {
+        res.type("application/javascript");
+      }
+    },
+  }),
+);
 
 app.get("/js/env.js", (_req, res) => {
   const apiBase = process.env.API_BASE_URL || "http://localhost:3001";
-  const demoMode = process.env.DEMO || "false";
-  const payload = `window.__ENV = ${JSON.stringify({ API_BASE_URL: apiBase, DEMO: demoMode })};`;
+  const payload = `window.__ENV = ${JSON.stringify({ API_BASE_URL: apiBase })};`;
   res.type("application/javascript").send(payload);
 });
 
-app.get("/", (_req, res) => {
-  res.sendFile(path.join(__dirname, "pages", "index.html"));
+const routesPath = path.join(__dirname, "routes.json");
+const routes = loadRoutes(routesPath);
+
+Object.entries(routes).forEach(([route, pagePath]) => {
+  app.get(route, (_req, res) => {
+    res.sendFile(path.join(__dirname, pagePath));
+  });
 });
 
 app.listen(PORT, () => {
@@ -46,19 +53,16 @@ function openBrowser(url) {
   });
 }
 
-function seedFakeData() {
-  const fakeDataDir = path.join(__dirname, "fakeData");
-  const seedPath = path.join(fakeDataDir, "seed.json");
-  if (!fs.existsSync(fakeDataDir)) {
-    fs.mkdirSync(fakeDataDir, { recursive: true });
+function loadRoutes(filePath) {
+  try {
+    const raw = fs.readFileSync(filePath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      return parsed;
+    }
+  } catch (err) {
+    console.warn("Could not load routes.json. Falling back to / only.");
   }
-  if (!fs.existsSync(seedPath)) {
-    const seed = {
-      ok: true,
-      demo: true,
-      message: "Seeded fake data file.",
-      items: [],
-    };
-    fs.writeFileSync(seedPath, JSON.stringify(seed, null, 2));
-  }
+
+  return { "/": "pages/elder-dashboard.html" };
 }

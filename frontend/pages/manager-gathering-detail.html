@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Gathering Detail</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-manager-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-manager-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="managerGatheringDetailTitle">
+      <a class="manager-detail-back-btn" href="/manager-gatherings" aria-label="Back to Manage Gatherings">&larr;</a>
+      <header class="card-header">
+        <h1 id="managerGatheringDetailTitle">Gathering Details</h1>
+      </header>
+
+      <p id="managerGatheringDetailStatus" class="status" role="status" aria-live="polite">Loading gathering...</p>
+      <div id="managerGatheringDetailContent" class="stack-list"></div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/manager-common.js"></script>
+<script src="../js/manager-header.js"></script>
+<script src="../js/manager-sidebar.js"></script>
+<script src="../js/manager-gathering-detail.js"></script>
+</body>
+</html>

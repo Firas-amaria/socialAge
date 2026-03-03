@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Manager Application</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="manager">
+  <header data-manager-header></header>
+  <div class="manager-shell">
+    <aside class="manager-sidebar" data-manager-sidebar></aside>
+    <main class="manager-content">
+      <section class="card manager-page" aria-labelledby="page-title">
+        <header class="card-header">
+          <h1 id="page-title">Application Form</h1>
+        </header>
+
+        <form id="applicationForm" class="form" novalidate>
+          <div class="field">
+            <label for="fullLegalName">Full Legal Name</label>
+            <input id="fullLegalName" name="fullLegalName" type="text" autocomplete="name" required>
+            <p class="error" id="fullLegalNameError" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="governmentIdNumber">Government ID Number</label>
+            <input id="governmentIdNumber" name="governmentIdNumber" type="text" autocomplete="off" required>
+            <p class="error" id="governmentIdNumberError" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="referenceText">Reference Notes</label>
+            <textarea id="referenceText" name="referenceText" rows="4" required></textarea>
+            <p class="error" id="referenceTextError" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="employmentProof">Proof of Employment</label>
+            <input id="employmentProof" name="employmentProof" type="file" accept="image/*,.pdf,.doc,.docx" required>
+            <p class="help">Upload a document or image showing proof of employment.</p>
+            <p class="error" id="employmentProofError" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="governmentIdImage">Government ID Image</label>
+            <input id="governmentIdImage" name="governmentIdImage" type="file" accept="image/*" required>
+            <p class="help">Upload a clear, readable photo of your ID.</p>
+            <p class="error" id="governmentIdImageError" aria-live="polite"></p>
+          </div>
+
+          <div class="preview" id="imagePreviewWrapper" hidden>
+            <p class="preview-title">Image Preview</p>
+            <img id="imagePreview" alt="Selected ID preview">
+          </div>
+
+          <div class="field">
+            <label for="additionalDocuments">Additional Documents (Optional)</label>
+            <input id="additionalDocuments" name="additionalDocuments" type="file" accept="image/*,.pdf,.doc,.docx"
+              multiple>
+            <p class="help">Attach any supporting documents (optional).</p>
+            <p class="error" id="additionalDocumentsError" aria-live="polite"></p>
+          </div>
+
+          <button type="submit" class="primary-btn">Submit Application</button>
+          <p id="formSuccess" class="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <a class="back-link" href="/">Back to Home</a>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/env.js"></script>
+  <script src="../js/manager-header.js"></script>
+  <script src="../js/manager-sidebar.js"></script>
+  <script src="../js/manager-application.js"></script>
+</body>
+
+</html>

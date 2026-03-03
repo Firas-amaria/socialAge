@@ -2,11 +2,30 @@ const mongoose = require("mongoose");
 
 const SMApplicationSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    status: { type: String, enum: ["approved", "denied"], required: true },
-    realIdNumber: { type: String, required: true, trim: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    status: { type: String, enum: ["pending", "approved", "rejected", "denied"], default: "pending" },
+    governmentIdNumber: { type: String, required: true, trim: true },
     fullName: { type: String, required: true, trim: true },
     references: { type: String, default: "", trim: true },
+    adminNotes: { type: String, default: "", trim: true },
+    approvedAt: { type: Date, default: null },
+    employmentProof: {
+      filename: { type: String, default: "" },
+      mimetype: { type: String, default: "" },
+      size: { type: Number, default: 0 },
+    },
+    governmentIdImage: {
+      filename: { type: String, default: "" },
+      mimetype: { type: String, default: "" },
+      size: { type: Number, default: 0 },
+    },
+    additionalDocuments: [
+      {
+        filename: { type: String, default: "" },
+        mimetype: { type: String, default: "" },
+        size: { type: Number, default: 0 },
+      },
+    ],
   },
   { timestamps: true }
 );

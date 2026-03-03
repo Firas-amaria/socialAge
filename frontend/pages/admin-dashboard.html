@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-admin-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-admin-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="adminDashboardTitle">
+      <header class="card-header">
+        <h1 id="adminDashboardTitle">Admin Dashboard</h1>
+      </header>
+
+      <p id="adminDashboardStatus" class="status" role="status" aria-live="polite">Loading dashboard...</p>
+      <div id="adminDashboardStats" class="manager-stats"></div>
+      <div id="adminUpcomingList" class="stack-list"></div>
+
+      <div class="list-card">
+        <h3>Quick Links</h3>
+        <div class="list-card__actions">
+          <a class="primary-btn button-link" href="/admin-applications">Review Applications</a>
+          <a class="primary-btn button-link" href="/admin-gatherings">Manage Gatherings</a>
+          <a class="primary-btn button-link" href="/admin-users">Manage Users</a>
+          <a class="secondary-btn button-link" href="/admin-settings">Settings</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin-common.js"></script>
+<script src="../js/admin-header.js"></script>
+<script src="../js/admin-sidebar.js"></script>
+<script src="../js/admin-dashboard.js"></script>
+</body>
+</html>

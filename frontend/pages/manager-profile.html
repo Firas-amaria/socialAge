@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Profile</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+
+<header data-manager-header></header>
+
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-manager-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page">
+      <header class="card-header">
+        <h1>Profile</h1>
+      </header>
+      <div id="profileInfo"></div>
+      <section class="card" style="margin-top: 16px;">
+        <h2 class="section-title section-title--form">Application Timeline</h2>
+        <div id="applicationSnapshot"></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<script src="../js/manager-header.js"></script>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/manager-common.js"></script>
+<script src="../js/manager-sidebar.js"></script>
+<script src="../js/manager-profile.js"></script>
+</body>
+</html>

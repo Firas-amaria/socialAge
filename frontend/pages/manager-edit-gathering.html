@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Gathering</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-manager-header></header>
+
+<div class="manager-shell">
+  <aside class="manager-sidebar">
+    <nav class="manager-nav" aria-label="Manager navigation">
+      <a href="/manager-application-status">Application Status</a>
+      <a href="/manager-create-gathering">Create New Gathering</a>
+      <a href="/manager-gatherings" aria-current="page">Manage My Gatherings</a>
+      <a href="/manager-profile">Profile</a>
+    </nav>
+  </aside>
+
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="edit-title">
+      <header class="card-header">
+        <h1 id="edit-title">Edit Gathering</h1>
+      </header>
+
+      <form id="editGatheringForm" class="form">
+        <div class="field">
+          <label for="name">Title</label>
+          <input id="name" name="name" type="text" required>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date" required>
+          </div>
+          <div class="field">
+            <label for="startTime">Start Time</label>
+            <input id="startTime" name="startTime" type="time" required>
+          </div>
+          <div class="field">
+            <label for="endTime">End Time</label>
+            <input id="endTime" name="endTime" type="time">
+          </div>
+        </div>
+        <div class="field">
+          <label for="address">Address (Place Name)</label>
+          <input id="address" name="address" type="text" required>
+        </div>
+        <div class="field">
+          <label for="location">Location Link (Google Maps)</label>
+          <input id="location" name="location" type="url" required>
+        </div>
+        <div class="field">
+          <label for="maxAttendees">Max Attendees</label>
+          <input id="maxAttendees" name="maxAttendees" type="number" min="1" required>
+        </div>
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="field">
+          <label for="notes">Manager Notes</label>
+          <textarea id="notes" name="notes" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type" name="type" required>
+              <option value="free_for_all">Free for all</option>
+              <option value="signup_required">Signup required</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="inactive">Inactive</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="button-grid">
+          <button type="submit" class="primary-btn">Save Changes</button>
+          <button type="button" id="cancelGatheringBtn" class="danger-btn">Cancel Gathering</button>
+          <a href="/manager-gatherings" class="secondary-btn button-link">Back to Manage Gatherings</a>
+        </div>
+        <p id="editStatus" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/manager-common.js"></script>
+<script src="../js/manager-header.js"></script>
+<script src="../js/manager-edit-gathering.js"></script>
+</body>
+</html>

@@ -5,7 +5,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js --require dotenv/config",
-    "dev": "nodemon app.js --require dotenv/config"
+    "dev": "nodemon app.js --require dotenv/config",
+    "db:reset": "node --require dotenv/config scripts/resetDb.js",
+    "seed:all": "npm run seed:users && npm run seed:applications && npm run seed:gatherings",
+    "db:rebuild": "npm run db:reset && npm run seed:all",
+    "seed:users": "node --require dotenv/config seeders/seedUsers.js",
+    "seed:applications": "node --require dotenv/config seeders/seedApplications.js",
+    "seed:gatherings": "node --require dotenv/config seeders/seedGatherings.js"
   },
   "dependencies": {
     "axios": "^1.8.1",

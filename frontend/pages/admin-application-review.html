@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Application Review</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-admin-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-admin-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="adminApplicationReviewTitle">
+      <header class="card-header">
+        <h1 id="adminApplicationReviewTitle">Application Review</h1>
+      </header>
+
+      <p id="adminApplicationReviewStatus" class="status" role="status" aria-live="polite">Loading application...</p>
+      <div id="adminApplicationDetails" class="stack-list"></div>
+
+      <div class="form-stack">
+        <label for="adminReviewNotes">Admin Notes</label>
+        <textarea id="adminReviewNotes" rows="4" placeholder="Add notes for this application"></textarea>
+      </div>
+
+      <div class="list-card__actions">
+        <button id="adminApproveBtn" type="button" class="primary-btn">Approve</button>
+        <button id="adminRejectBtn" type="button" class="secondary-btn">Reject</button>
+        <a class="secondary-btn button-link" href="/admin-applications">Back to Applications</a>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin-common.js"></script>
+<script src="../js/admin-header.js"></script>
+<script src="../js/admin-sidebar.js"></script>
+<script src="../js/admin-application-review.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Applications</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-admin-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-admin-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="adminApplicationsTitle">
+      <header class="card-header">
+        <h1 id="adminApplicationsTitle">Applications</h1>
+      </header>
+
+      <div class="filter-row">
+        <label>
+          <span>Status</span>
+          <select id="applicationStatusFilter">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </label>
+      </div>
+
+      <p id="adminApplicationsStatus" class="status" role="status" aria-live="polite">Loading applications...</p>
+      <div class="table-wrap">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminApplicationsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin-common.js"></script>
+<script src="../js/admin-header.js"></script>
+<script src="../js/admin-sidebar.js"></script>
+<script src="../js/admin-applications.js"></script>
+</body>
+</html>

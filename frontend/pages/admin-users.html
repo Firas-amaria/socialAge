@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Users</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="manager">
+<header data-admin-header></header>
+<div class="manager-shell">
+  <aside class="manager-sidebar" data-admin-sidebar></aside>
+  <main class="manager-content">
+    <section class="card manager-page card--wide" aria-labelledby="adminUsersTitle">
+      <header class="card-header">
+        <h1 id="adminUsersTitle">Users</h1>
+      </header>
+
+      <div class="filter-row">
+        <label>
+          <span>Search</span>
+          <input id="adminUsersSearch" type="search" placeholder="Name or email">
+        </label>
+        <label>
+          <span>Role</span>
+          <select id="adminUsersRoleFilter">
+            <option value="">All</option>
+            <option value="Admin">Admin</option>
+            <option value="SocialM">SocialM</option>
+            <option value="Elderly">Elderly</option>
+            <option value="Assistance">Assistance</option>
+          </select>
+        </label>
+        <label>
+          <span>Status</span>
+          <select id="adminUsersActiveFilter">
+            <option value="">All</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </label>
+      </div>
+
+      <p id="adminUsersStatus" class="status" role="status" aria-live="polite">Loading users...</p>
+      <div class="table-wrap">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminUsersBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/env.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin-common.js"></script>
+<script src="../js/admin-header.js"></script>
+<script src="../js/admin-sidebar.js"></script>
+<script src="../js/admin-users.js"></script>
+</body>
+</html>
