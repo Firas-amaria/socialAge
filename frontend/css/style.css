@@ -809,6 +809,54 @@ button:active {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
+.status-popup {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.status-popup.is-open {
+  display: flex;
+}
+
+.status-popup__panel {
+  width: min(420px, 92vw);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-strong);
+  border: 1px solid transparent;
+  display: grid;
+  gap: 14px;
+  text-align: center;
+}
+
+.status-popup__panel--success {
+  background: #edfdf3;
+  border-color: #9ddab0;
+  color: #165b2e;
+}
+
+.status-popup__panel--error {
+  background: #fff1f1;
+  border-color: #f0a7a7;
+  color: #8b1e1e;
+}
+
+.status-popup__title,
+.status-popup__message {
+  margin: 0;
+}
+
+.status-popup__button {
+  justify-self: center;
+  min-width: 120px;
+}
+
 body.modal-open {
   overflow: hidden;
 }

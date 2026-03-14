@@ -237,6 +237,57 @@
       });
     });
 
+  const showStatusPopup = ({ message, tone = "success" }) =>
+    new Promise((resolve) => {
+      const overlay = document.createElement("div");
+      overlay.className = "status-popup is-open";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+
+      const panel = document.createElement("div");
+      panel.className = `status-popup__panel status-popup__panel--${tone}`;
+
+      const title = document.createElement("h3");
+      title.className = "status-popup__title";
+      title.textContent = tone === "error" ? "Something went wrong" : "Success";
+
+      const text = document.createElement("p");
+      text.className = "status-popup__message";
+      text.textContent = cleanText(message) || "Action completed.";
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "primary-btn status-popup__button";
+      button.textContent = "OK";
+
+      panel.appendChild(title);
+      panel.appendChild(text);
+      panel.appendChild(button);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+      document.body.classList.add("modal-open");
+
+      const close = () => {
+        document.body.classList.remove("modal-open");
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        resolve();
+      };
+
+      button.addEventListener("click", close);
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) {
+          close();
+        }
+      });
+      window.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key === "Escape") close();
+        },
+        { once: true }
+      );
+    });
+
   const createBrowseCard = (gathering) => {
     const wrap = document.createElement("article");
     wrap.className = "elder-card-item";
@@ -481,7 +532,7 @@
 
         if (isLoggedIn()) {
           const result = await window.api.post(`/gatherings/${gathering._id}/attendees`, {});
-          window.alert(emailStatusMessage(result));
+          await showStatusPopup({ message: emailStatusMessage(result), tone: "success" });
           window.location.href = "/elder-dashboard";
         } else {
           if (!isFreeForAllType(gathering)) {
@@ -495,13 +546,13 @@
             return;
           }
           const result = await window.api.post(`/gatherings/${gathering._id}/attendees`, guestPayload);
-          window.alert(emailStatusMessage(result));
+          await showStatusPopup({ message: emailStatusMessage(result), tone: "success" });
           window.location.href = "/elder-dashboard";
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Could not register.";
         if (message.toLowerCase().includes("already")) {
-          window.alert("Registration successfully.");
+          await showStatusPopup({ message: "Registration successfully.", tone: "success" });
           window.location.href = "/elder-dashboard";
           return;
         }
